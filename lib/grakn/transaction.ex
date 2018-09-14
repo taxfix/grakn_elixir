@@ -1,13 +1,29 @@
 defmodule Grakn.Transaction do
-  def start_link(channel) do
-    Agent.start_link(fn -> {channel, []} end)
+  defmodule Type do
+    @read 0
+    @write 1
+    @batch 2
+
+    @type t :: unquote(@read) | unquote(@write) | unquote(@batch)
+
+    def read, do: @read
+    def write, do: @write
+    def batch, do: @batch
   end
 
-  def open(tx, keyspace \\ "grakn") do
+  @opaque t :: pid()
+
+  @spec start_link(GRPC.Client.Stream.t()) :: {:ok, t()} | {:error, any}
+  def start_link(req_stream) do
+    Agent.start_link(fn -> {req_stream, []} end)
+  end
+
+  @spec open(t(), String.t(), Grakn.Transaction.Type.t()) :: :ok
+  def open(tx, keyspace \\ "grakn", type \\ Grakn.Transaction.Type.read()) do
     request =
       transaction_request(
         :open_req,
-        Session.Transaction.Open.Req.new(keyspace: keyspace, type: 0)
+        Session.Transaction.Open.Req.new(keyspace: keyspace, type: type)
       )
 
     {:ok, resp_stream} =
@@ -20,22 +36,26 @@ defmodule Grakn.Transaction do
     Agent.update(tx, fn {req_stream, _} -> {req_stream, resp_stream} end)
   end
 
+  @spec commit(t()) :: :ok
   def commit(tx) do
     request =
-        transaction_request(
-            :commit_req,
-            Session.Transaction.Commit.Req.new()
-        )
+      transaction_request(
+        :commit_req,
+        Session.Transaction.Commit.Req.new()
+      )
+
     tx |> send_request(request)
-    {:ok,_} = get_response(tx)
+    {:ok, _} = get_response(tx)
     Agent.stop(tx)
   end
 
-  def query(tx, query) do
+  @spec query(t(), String.t(), boolean()) :: {:ok, Enumerable.t()} | {:error, any()}
+  def query(tx, query, include_inferences \\ true) do
+    infer = if include_inferences, do: 0, else: 1
     request =
       transaction_request(
         :query_req,
-        Session.Transaction.Query.Req.new(query: query, infer: 0)
+        Session.Transaction.Query.Req.new(query: query, infer: infer)
       )
 
     tx |> send_request(request)

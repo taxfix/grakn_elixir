@@ -1,6 +1,6 @@
 defmodule Grakn.Transaction do
-  def start_link(input_stream) do
-    Agent.start_link(fn -> {input_stream, []} end)
+  def start_link(channel) do
+    Agent.start_link(fn -> {channel, []} end)
   end
 
   def open(tx, keyspace \\ "grakn") do
@@ -10,14 +10,14 @@ defmodule Grakn.Transaction do
         Session.Transaction.Open.Req.new(keyspace: keyspace, type: 0)
       )
 
-    {:ok, output_stream} =
+    {:ok, resp_stream} =
       tx
       |> send_request(request)
       |> GRPC.Stub.recv()
 
-    {:ok, _} = Enum.at(output_stream, 0)
+    {:ok, _} = Enum.at(resp_stream, 0)
 
-    Agent.update(tx, fn {input_stream, _} -> {input_stream, output_stream} end)
+    Agent.update(tx, fn {req_stream, _} -> {req_stream, resp_stream} end)
   end
 
   def commit(tx) do
@@ -75,13 +75,13 @@ defmodule Grakn.Transaction do
 
   defp get_response(tx) do
     tx
-    |> get_output_stream
+    |> get_response_stream
     |> Enum.at(0)
   end
 
   defp send_request(tx, request) do
     tx
-    |> get_input_stream
+    |> get_request_stream
     |> GRPC.Stub.send_request(request)
   end
 
@@ -89,13 +89,13 @@ defmodule Grakn.Transaction do
     Agent.get(tx, & &1)
   end
 
-  defp get_input_stream(tx) do
-    {input, _} = get_state(tx)
-    input
+  defp get_request_stream(tx) do
+    {req_stream, _} = get_state(tx)
+    req_stream
   end
 
-  defp get_output_stream(tx) do
-    {_, output} = get_state(tx)
-    output
+  defp get_response_stream(tx) do
+    {_, resp_stream} = get_state(tx)
+    resp_stream
   end
 end

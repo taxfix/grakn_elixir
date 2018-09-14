@@ -20,6 +20,17 @@ defmodule Grakn.Transaction do
     Agent.update(tx, fn {input_stream, _} -> {input_stream, output_stream} end)
   end
 
+  def commit(tx) do
+    request =
+        transaction_request(
+            :commit_req,
+            Session.Transaction.Commit.Req.new()
+        )
+    tx |> send_request(request)
+    {:ok,_} = get_response(tx)
+    Agent.stop(tx)
+  end
+
   def query(tx, query) do
     request =
       transaction_request(

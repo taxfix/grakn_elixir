@@ -18,8 +18,8 @@ defmodule Grakn.Transaction do
     Agent.start_link(fn -> {req_stream, []} end)
   end
 
-  @spec open(t(), String.t(), Grakn.Transaction.Type.t()) :: :ok
-  def open(tx, keyspace \\ "grakn", type \\ Grakn.Transaction.Type.read()) do
+  @spec open(t(), String.t(), Type.t()) :: :ok
+  def open(tx, keyspace \\ "grakn", type \\ Type.read()) do
     request =
       transaction_request(
         :open_req,
@@ -49,9 +49,18 @@ defmodule Grakn.Transaction do
     Agent.stop(tx)
   end
 
+  def cancel(tx) do
+    tx
+    |> get_request_stream
+    |> GRPC.Stub.cancel()
+
+    Agent.stop(tx)
+  end
+
   @spec query(t(), String.t(), boolean()) :: {:ok, Enumerable.t()} | {:error, any()}
   def query(tx, query, include_inferences \\ true) do
     infer = if include_inferences, do: 0, else: 1
+
     request =
       transaction_request(
         :query_req,

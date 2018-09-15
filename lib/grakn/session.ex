@@ -15,6 +15,15 @@ defmodule Grakn.Session do
     |> Grakn.Transaction.start_link()
   end
 
+  @spec close(t()) :: :ok
+  def close(session) do
+    session
+    |> get_channel
+    |> GRPC.Stub.end_stream()
+
+    Agent.stop(session)
+  end
+
   defp get_channel(session) do
     Agent.get(session, & &1)
   end

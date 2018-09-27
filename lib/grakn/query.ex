@@ -1,4 +1,7 @@
 defmodule Grakn.Query do
+
+  @type t :: %__MODULE__{graql: String.t()}
+
   defstruct [:graql]
   def graql(graql_query), do: %__MODULE__{graql: graql_query}
 end

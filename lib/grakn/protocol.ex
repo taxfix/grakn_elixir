@@ -20,9 +20,7 @@ defmodule Grakn.Protocol do
   end
 
   def connect(opts) do
-    uri = opts |> Keyword.get(:uri, "localhost:48555")
-
-    case Grakn.Session.start_link(uri) do
+    case Grakn.Session.start_link(connection_uri(opts)) do
       {:ok, session} -> {:ok, %__MODULE__{session: session}}
     end
   end
@@ -73,5 +71,9 @@ defmodule Grakn.Protocol do
   def handle_rollback(_opts, %{transaction: tx} = state) do
     :ok = Grakn.Transaction.cancel(tx)
     {:ok, nil, %{state | transaction: nil}}
+  end
+
+  defp connection_uri(opts) do
+    "#{Keyword.fetch!(opts, :hostname)}:#{Keyword.get(opts, :port, 48555)}"
   end
 end

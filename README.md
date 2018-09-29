@@ -1,2 +1,2 @@
-# grakn-elixir
-Elixir driver for Grakn database (Under development)
+# Grakn Elixir client
+http://grakn.ai

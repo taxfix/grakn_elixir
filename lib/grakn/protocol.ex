@@ -33,10 +33,10 @@ defmodule Grakn.Protocol do
     {:error, Grakn.Error.exception("Transaction already opened on this connection"), state}
   end
 
-  def handle_begin(_opts, %{session: session} = state) do
+  def handle_begin(opts, %{session: session} = state) do
     case Grakn.Session.transaction(session) do
       {:ok, tx} ->
-        :ok = Grakn.Transaction.open(tx)
+        :ok = Grakn.Transaction.open(tx, opts[:keyspace] || "grakn", opts[:type] || Grakn.Transaction.Type.read())
         {:ok, nil, %{state | transaction: tx}}
 
       {:error, reason} ->

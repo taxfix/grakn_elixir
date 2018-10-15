@@ -19,7 +19,7 @@ defmodule Grakn.Transaction do
   end
 
   @spec open(t(), String.t(), Type.t()) :: :ok
-  def open(tx, keyspace \\ "grakn", type \\ Type.read()) do
+  def open(tx, keyspace, type) do
     request =
       transaction_request(
         :open_req,

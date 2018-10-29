@@ -71,7 +71,7 @@ defmodule Grakn.Transaction do
 
     case get_response(tx) do
       {:ok, %{res: {:query_iter, %{id: iterator_id}}}} -> {:ok, create_iterator(tx, iterator_id)}
-      {:error, _} = resp -> resp
+      error -> error
     end
   end
 
@@ -106,8 +106,8 @@ defmodule Grakn.Transaction do
           {:ok, %{res: {:iterate_res, %{res: {:done, _}}}}} ->
             nil
 
-          {:ok, %{res: {:iterate_res, %{res: {:query_iter_res, %{answer: answer}}}}}} ->
-            {answer, tx}
+          {:ok, %{res: {:iterate_res, %{res: {:query_iter_res, %{answer: %{answer: answer}}}}}}} ->
+            {Grakn.Answer.unwrap(answer), tx}
         end
       end
     )

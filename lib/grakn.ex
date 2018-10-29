@@ -58,9 +58,20 @@ defmodule Grakn do
   """
   @spec transaction(conn(), (conn() -> result), Keyword.t()) :: {:ok, result} | {:error, any}
         when result: var
-  def transaction(conn, fun, opts \\ []) do
-    DBConnection.transaction(conn, fun, opts)
-  end
+  defdelegate transaction(conn, fun, opts \\ []), to: DBConnection
+
+  @doc """
+  Rollback a transaction, does not return.
+  Aborts the current transaction fun. If inside multiple `transaction/3`
+  functions, bubbles up to the top level.
+  ## Example
+      {:error, :oops} = Grakn.transaction(pid, fn(conn) ->
+        Grakn.rollback(conn, :oops)
+        IO.puts "never reaches here!"
+      end)
+  """
+  @spec rollback(DBConnection.t, any) :: no_return()
+  defdelegate rollback(conn, any), to: DBConnection
 
   def child_spec(opts) do
     %{

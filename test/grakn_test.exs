@@ -38,7 +38,7 @@ defmodule GraknTest do
       end, type: Grakn.Transaction.Type.write())
       {:error, _} = Grakn.transaction(context[:conn], fn conn ->
         {:error, reason} = Grakn.query(conn, Grakn.Query.graql("insert $x isa city; $x has city_name \"wrong\";"))
-        DBConnection.rollback(conn, reason)
+        Grakn.rollback(conn, reason)
       end, type: Grakn.Transaction.Type.write())
     end
 

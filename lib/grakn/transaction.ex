@@ -74,21 +74,6 @@ defmodule Grakn.Transaction do
     end
   end
 
-  @spec put_attribute_type(t(), String.t(), any) :: {:ok, Grakn.Concept.t()} | {:error, any()}
-  def put_attribute_type(tx, label, data_type) do
-    request =
-      transaction_request(
-        :putAttributeType_req,
-        Session.Transaction.PutAttributeType.Req.new(label: label, dataType: data_type)
-      )
-    tx |> send_request(request)
-
-    case get_response(tx) do
-      {:ok, %{attributeType: concept}} -> {:ok, concept}
-      {:error, _} = resp -> resp
-    end
-  end
-
   defp create_iterator(tx, id) do
     Stream.unfold(
       tx,

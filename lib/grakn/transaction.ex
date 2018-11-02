@@ -44,7 +44,7 @@ defmodule Grakn.Transaction do
         Session.Transaction.Commit.Req.new()
       )
 
-    tx |> send_request(request)
+    tx |> send_request(request, end_stream: true)
     {:ok, _} = get_response(tx)
     Agent.stop(tx)
   end
@@ -53,7 +53,6 @@ defmodule Grakn.Transaction do
     tx
     |> get_request_stream
     |> GRPC.Stub.cancel()
-
     Agent.stop(tx)
   end
 
@@ -123,10 +122,10 @@ defmodule Grakn.Transaction do
     |> Enum.at(0)
   end
 
-  defp send_request(tx, request) do
+  defp send_request(tx, request, opts \\ []) do
     tx
     |> get_request_stream
-    |> GRPC.Stub.send_request(request)
+    |> GRPC.Stub.send_request(request, opts)
   end
 
   defp get_state(tx) do

@@ -32,4 +32,26 @@ defmodule Grakn.GraqlTest do
         has: ["att1", "att2"]
     assert graql === "define something sub entity, has att1, has att2;"
   end
+
+  test "define a relationship" do
+    %{graql: graql} =
+      define "r", sub: :relationship, relates: ["x", "y"]
+    assert graql === "define r sub relationship, relates x, relates y;"
+  end
+
+  test "define a relationship with attribute" do
+    %{graql: graql} =
+      define "r", sub: :relationship,
+        relates: ["x", "y"],
+        has: "att1"
+    assert graql === "define r sub relationship, relates x, relates y, has att1;"
+  end
+
+  test "define a relationship with multiple attributes" do
+    %{graql: graql} =
+      define "r", sub: :relationship,
+        relates: ["x", "y"],
+        has: ["att1", "att2"]
+    assert graql === "define r sub relationship, relates x, relates y, has att1, has att2;"
+  end
 end

@@ -60,7 +60,12 @@ defmodule Grakn.Protocol do
         {:ok, iterator, state}
 
       {:error, reason} ->
-        {:error, Grakn.Error.exception("Failed to execute query: #{inspect(reason)}", reason), state}
+        {:error,
+          Grakn.Error.exception(
+            "Failed to execute #{inspect(graql)}. Reason: #{Map.get(reason, :message, "unknown")}",
+          reason),
+          state
+        }
     end
   end
 

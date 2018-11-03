@@ -6,7 +6,7 @@ defmodule Grakn.Graql do
       string: :string,
       long: :long,
       double: :double,
-      boolean: :boolean
+      boolean: :boolean,
       date: :date
     ]
   end
@@ -22,8 +22,12 @@ defmodule Grakn.Graql do
   @spec define(String.t() | atom(), keyword()) :: Query.t()
   defmacro define(label, [sub: :entity] = opts), do: define_body(label, opts)
   defmacro define(label, [sub: :entity, has: _] = opts), do: define_body(label, opts)
+  defmacro define(label, [sub: :entity, plays: _] = opts), do: define_body(label, opts)
+  defmacro define(label, [sub: :entity, has: _, plays: _] = opts), do: define_body(label, opts)
   defmacro define(label, sub: :attribute), do: define_body(label, sub: :attribute)
   defmacro define(label, [sub: :attribute, datatype: _] = opts), do: define_body(label, opts)
+  defmacro define(label, [sub: :relationship, relates: _] = opts), do:  define_body(label, opts)
+  defmacro define(label, [sub: :relationship, relates: _, has: _] = opts), do: define_body(label, opts)
   defmacro define(label, opts), do: throw "Graql compile error: #{inspect({label, opts})}"
 
   defp define_body(label, opts) do
@@ -41,6 +45,5 @@ defmodule Grakn.Graql do
     |> Enum.map(fn value -> "#{key} #{value}" end)
     |> Enum.join(", ")
   end
-  def expand_key_values({key, [value]}), do: "#{key} #{value}"
   def expand_key_values({key, value}), do: "#{key} #{value}"
 end

@@ -2,7 +2,13 @@ defmodule Grakn.Graql do
   alias Grakn.Query
 
   defmodule Datatypes do
-    defstruct [string: :string, ]
+    defstruct [
+      string: :string,
+      long: :long,
+      double: :double,
+      boolean: :boolean
+      date: :date
+    ]
   end
 
   defmacro  __using__([]) do

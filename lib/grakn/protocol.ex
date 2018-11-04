@@ -20,7 +20,7 @@ defmodule Grakn.Protocol do
   end
 
   def connect(opts) do
-    case Grakn.Session.start_link(connection_uri(opts)) do
+    case Grakn.Session.new(connection_uri(opts)) do
       {:ok, session} -> {:ok, %__MODULE__{session: session}}
     end
   end
@@ -36,7 +36,7 @@ defmodule Grakn.Protocol do
   def handle_begin(opts, %{session: session} = state) do
     case Grakn.Session.transaction(session) do
       {:ok, tx} ->
-        :ok = Grakn.Transaction.open(tx, opts[:keyspace] || "grakn", opts[:type] || Grakn.Transaction.Type.read())
+        {:ok, tx} = Grakn.Transaction.open(tx, opts[:keyspace] || "grakn", opts[:type] || Grakn.Transaction.Type.read())
         {:ok, nil, %{state | transaction: tx}}
 
       {:error, reason} ->

@@ -11,14 +11,17 @@ defmodule Grakn.Transaction do
     def batch, do: @batch
   end
 
-  @opaque t :: pid()
+  @opaque t :: {GRPC.Client.Stream.t(), GRPC.Client.Stream.t()}
 
-  @spec start_link(GRPC.Client.Stream.t()) :: {:ok, t()} | {:error, any}
-  def start_link(req_stream) do
-    Agent.start_link(fn -> {req_stream, []} end)
+  @spec new(GRPC.Channel.t()) :: {:ok, t()} | {:error, any}
+  def new(channel) do
+    req_stream =
+      channel
+      |> Session.SessionService.Stub.transaction()
+    {:ok, {req_stream, []}}
   end
 
-  @spec open(t(), String.t(), Type.t()) :: :ok
+  @spec open(t(), String.t(), Type.t()) :: {:ok, t()}
   def open(tx, keyspace, type) do
     request =
       transaction_request(
@@ -33,7 +36,7 @@ defmodule Grakn.Transaction do
 
     {:ok, _} = Enum.at(resp_stream, 0)
 
-    Agent.update(tx, fn {req_stream, _} -> {req_stream, resp_stream} end)
+    {:ok, put_elem(tx, 1, resp_stream)}
   end
 
   @spec commit(t()) :: :ok
@@ -46,14 +49,14 @@ defmodule Grakn.Transaction do
 
     tx |> send_request(request, end_stream: true)
     {:ok, _} = get_response(tx)
-    Agent.stop(tx)
+    :ok
   end
 
   def cancel(tx) do
     tx
     |> get_request_stream
     |> GRPC.Stub.cancel()
-    Agent.stop(tx)
+    :ok
   end
 
   @spec query(t(), String.t(), boolean()) :: {:ok, Enumerable.t()} | {:error, any()}
@@ -113,17 +116,7 @@ defmodule Grakn.Transaction do
     |> GRPC.Stub.send_request(request, opts)
   end
 
-  defp get_state(tx) do
-    Agent.get(tx, & &1)
-  end
 
-  defp get_request_stream(tx) do
-    {req_stream, _} = get_state(tx)
-    req_stream
-  end
-
-  defp get_response_stream(tx) do
-    {_, resp_stream} = get_state(tx)
-    resp_stream
-  end
+  defp get_request_stream({req_stream, _}), do: req_stream
+  defp get_response_stream({_, resp_stream}), do: resp_stream
 end

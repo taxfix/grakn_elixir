@@ -69,8 +69,14 @@ defmodule Grakn.Protocol do
     end
   end
 
-  def handle_execute(_query, _params, _opts, state) do
+  def handle_execute(%Grakn.Query{}, _, _, state) do
     {:error, Grakn.Error.exception("Cannot execute a query before starting a tranaction"), state}
+  end
+
+  def handle_execute(%Grakn.Command{command: command, params: params}, _, _, %{session: session} = state) do
+    session
+    |> Grakn.Session.command(command, params)
+    |> Tuple.append(state)
   end
 
   def handle_rollback(_opts, %{transaction: tx} = state) do

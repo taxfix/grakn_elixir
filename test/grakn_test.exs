@@ -58,4 +58,26 @@ defmodule GraknTest do
     end
 
   end
+
+  describe "commands" do
+    test "get all keyspaces should contain the default grakn keyspace", context do
+      {:ok, names} = Grakn.command(context[:conn], Grakn.Command.get_keyspaces())
+      assert Enum.member?(names, "grakn")
+    end
+
+    # Create namespace returns an error from server. It seems to be a issue in the
+    # GRPC API. However, the delete command works as expected.
+    # Skipping this test for now until issue is resolved.
+    @tag :skip
+    test "create and delete keyspaces", context do
+      keyspace = Integer.to_string(:rand.uniform(10000), 16)
+      {:ok, nil} = Grakn.command(context[:conn], Grakn.Command.create_keyspace(keyspace))
+      {:ok, names} = Grakn.command(context[:conn], Grakn.Command.get_keyspaces())
+      assert Enum.member?(names, keyspace)
+      {:ok, nil} = Grakn.command(context[:conn], Grakn.Command.delete_keyspace(keyspace))
+      {:ok, names} = Grakn.command(context[:conn], Grakn.Command.get_keyspaces())
+      assert not Enum.member?(names, keyspace)
+    end
+
+  end
 end

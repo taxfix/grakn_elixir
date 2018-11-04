@@ -1,4 +1,4 @@
-ExUnit.start()
+ExUnit.start(exclude: [:skip])
 
 exit = fn message ->
     IO.puts(message)
@@ -6,7 +6,7 @@ exit = fn message ->
 end
 
 engine_status = fn output ->
-    output 
+    output
     |> String.split("\n")
     |> Enum.at(-2)
     |> String.split(":")

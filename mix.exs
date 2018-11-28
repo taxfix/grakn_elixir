@@ -21,7 +21,6 @@ defmodule GraknElixir.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:grakn, github: "graknlabs/grakn", tag: "v1.3.0", runtime: false, app: false},
       {:db_connection, "~> 1.1.0"},
       {:grpc, "~> 0.3.0-alpha.2"},
       {:cowlib, "~> 2.4.0", override: true},

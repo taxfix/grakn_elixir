@@ -22,7 +22,7 @@ defmodule GraknElixir.MixProject do
   defp deps do
     [
       {:db_connection, "~> 1.1.0"},
-      {:grpc, "~> 0.3.0-alpha.2"},
+      {:grpc, "~> 0.3.1"},
       {:cowlib, "~> 2.4.0", override: true},
       {:protobuf, "~> 0.5.3"},
       {:ex_doc, ">= 0.0.0", only: :dev},

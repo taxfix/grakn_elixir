@@ -17,7 +17,8 @@ defmodule Grakn.Transaction do
 
   @opaque t :: {GRPC.Client.Stream.t(), GRPC.Client.Stream.t()}
 
-  @spec new(GRPC.Channel.t()) :: {:ok, t()} | {:error, any}
+  @spec new(%GRPC.Channel{}) ::
+          {:ok, {%GRPC.Client.Stream{}, []} | {:error, map()} | {:ok, map(), map()}}
   def new(channel) do
     req_stream =
       channel
@@ -26,7 +27,11 @@ defmodule Grakn.Transaction do
     {:ok, {req_stream, []}}
   end
 
-  @spec open(t(), String.t(), Type.t()) :: {:ok, t()}
+  @spec open(
+          {GRPC.Client.Stream.t(), GRPC.Client.Stream.t()} | {GRPC.Client.Stream.t(), []},
+          String.t(),
+          Type.t()
+        ) :: {:ok, {GRPC.Client.Stream.t(), GRPC.Client.Stream.t()}}
   def open(tx, keyspace, type) do
     request =
       transaction_request(
@@ -118,7 +123,7 @@ defmodule Grakn.Transaction do
 
   defp send_request(tx, request, opts \\ []) do
     tx
-    |> get_request_stream
+    |> get_request_stream()
     |> GRPC.Stub.send_request(request, opts)
   end
 

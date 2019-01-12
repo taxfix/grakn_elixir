@@ -3,15 +3,12 @@ defmodule Grakn.Session do
 
   @opaque t :: GRPC.Channel.t()
 
-  @spec new(String.t()) :: t()
+  @spec new(String.t()) :: {:ok, t()} | {:error, any()}
   def new(uri) do
     GRPC.Stub.connect(uri)
   end
 
-  @spec transaction(t()) :: {:ok, Grakn.Transaction.t()} | {:error, any()}
-  @spec transaction(GRPC.Channel) ::
-          {:ok,
-           {{:error, map()} | {:ok, any()} | {:ok, map(), map()} | GRPC.Client.Stream.t(), []}}
+  @spec transaction(Grakn.Session.t() | t()) :: {:ok, {GRPC.Client.Stream.t(), []}}
   def transaction(channel) do
     channel
     |> Grakn.Transaction.new()
@@ -51,7 +48,7 @@ defmodule Grakn.Session do
     end
   end
 
-  @spec close(t()) :: :ok
+  @spec close(%GRPC.Client.Stream{}) :: :ok
   def close(channel) do
     channel
     |> GRPC.Stub.end_stream()

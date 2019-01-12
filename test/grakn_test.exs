@@ -2,17 +2,25 @@ defmodule GraknTest do
   use ExUnit.Case
   doctest Grakn
 
+  @keyspace "grakn_elixir_test"
+
   setup do
     {:ok, conn} = Grakn.start_link(hostname: "localhost")
+    conn |> Grakn.command(Grakn.Command.delete_keyspace(@keyspace))
     {:ok, conn: conn}
   end
 
   describe "query" do
     test "returs a non-empty concept iterator", context do
-      Grakn.transaction(context[:conn], fn conn ->
-        {:ok, iterator} = Grakn.query(conn, Grakn.Query.graql("match $x; get;"))
-        assert not Enum.empty?(iterator)
-      end)
+      Grakn.transaction(
+        context[:conn],
+        fn conn ->
+          {:ok, iterator} = Grakn.query(conn, Grakn.Query.graql("match $x; get;"))
+
+          assert not Enum.empty?(iterator)
+        end,
+        keyspace: @keyspace
+      )
     end
 
     test "multiple inserts", context do
@@ -24,6 +32,7 @@ defmodule GraknTest do
             Grakn.query!(conn, Grakn.Query.graql("define age sub attribute, datatype long;"))
             Grakn.query!(conn, Grakn.Query.graql("define person sub entity, has name, has age;"))
           end,
+          keyspace: @keyspace,
           type: Grakn.Transaction.Type.write()
         )
 
@@ -33,6 +42,7 @@ defmodule GraknTest do
           fn conn ->
             Grakn.query(conn, Grakn.Query.graql("insert $x isa person;"))
           end,
+          keyspace: @keyspace,
           type: Grakn.Transaction.Type.write()
         )
 
@@ -47,6 +57,7 @@ defmodule GraknTest do
 
             Grakn.query!(conn, Grakn.Query.graql("match $x isa person; insert $x has age 100;"))
           end,
+          keyspace: @keyspace,
           type: Grakn.Transaction.Type.write()
         )
     end
@@ -59,6 +70,7 @@ defmodule GraknTest do
             Grakn.query!(conn, Grakn.Query.graql("define name sub attribute, datatype string;"))
             Grakn.query!(conn, Grakn.Query.graql("define city sub entity, has name;"))
           end,
+          keyspace: @keyspace,
           type: Grakn.Transaction.Type.write()
         )
 
@@ -74,8 +86,46 @@ defmodule GraknTest do
 
             Grakn.rollback(conn, reason)
           end,
+          keyspace: @keyspace,
           type: Grakn.Transaction.Type.write()
         )
+    end
+  end
+
+  describe "concept maps" do
+    test "get attribute value in different transaction", context do
+      {:ok, color_vars} =
+        Grakn.transaction(
+          context[:conn],
+          fn conn ->
+            Grakn.query!(conn, Grakn.Query.graql("define color sub attribute datatype string;"))
+            Grakn.query!(conn, Grakn.Query.graql("define car sub entity, has color;"))
+            Grakn.query!(conn, Grakn.Query.graql("insert $c isa car, has color \"red\";"))
+
+            Grakn.query!(
+              conn,
+              Grakn.Query.graql("match $c isa car, has color $color; get $color;")
+            )
+            |> Enum.to_list()
+          end,
+          keyspace: @keyspace,
+          type: Grakn.Transaction.Type.write()
+        )
+
+      {:ok, colors} =
+        Grakn.transaction(
+          context[:conn],
+          fn conn ->
+            color_vars
+            |> Enum.map(fn %{"color" => attribute} ->
+              with {:ok, color} <- Grakn.Concept.Attribute.value(attribute, conn), do: color
+            end)
+          end,
+          keyspace: @keyspace,
+          type: Grakn.Transaction.Type.write()
+        )
+
+      assert colors === ["red"]
     end
   end
 
@@ -89,6 +139,7 @@ defmodule GraknTest do
 
           assert not Enum.empty?(iterator)
         end,
+        keyspace: @keyspace,
         type: Grakn.Transaction.Type.write()
       )
     end

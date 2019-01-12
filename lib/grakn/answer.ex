@@ -27,11 +27,11 @@ defmodule Grakn.Answer do
              res:
                {:attribute_value_res,
                 %Session.Attribute.Value.Res{
-                  value: %Session.ValueObject{value: {:string, string_value}}
+                  value: %Session.ValueObject{value: {_, value}}
                 }}
            }
          }}
       ) do
-    string_value
+    value
   end
 end

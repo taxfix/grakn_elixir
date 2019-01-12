@@ -1,7 +1,11 @@
 defmodule Grakn.Graql do
+  @moduledoc false
+
   alias Grakn.Query
 
   defmodule Datatypes do
+    @moduledoc false
+
     defstruct string: :string,
               long: :long,
               double: :double,

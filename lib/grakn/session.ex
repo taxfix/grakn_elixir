@@ -1,4 +1,5 @@
 defmodule Grakn.Session do
+  @moduledoc false
 
   @opaque t :: GRPC.Channel.t()
 

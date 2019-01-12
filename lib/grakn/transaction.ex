@@ -1,5 +1,9 @@
 defmodule Grakn.Transaction do
+  @moduledoc false
+
   defmodule Type do
+    @moduledoc false
+
     @read 0
     @write 1
     @batch 2

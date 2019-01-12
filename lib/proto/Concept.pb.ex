@@ -233,6 +233,7 @@ defmodule Session.Concept.Delete.Res do
   defstruct []
 end
 
+# credo:disable-for-lines:1
 defmodule Session.Concept.BASE_TYPE do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
@@ -1283,6 +1284,7 @@ defmodule Session.AttributeType.SetRegex.Res do
   defstruct []
 end
 
+# credo:disable-for-lines:1
 defmodule Session.AttributeType.DATA_TYPE do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3

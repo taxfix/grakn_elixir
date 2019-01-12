@@ -70,7 +70,7 @@ defmodule GraknTest do
     # Skipping this test for now until issue is resolved.
     @tag :skip
     test "create and delete keyspaces", context do
-      keyspace = Integer.to_string(:rand.uniform(10000), 16)
+      keyspace = Integer.to_string(:rand.uniform(10_000), 16)
       {:ok, nil} = Grakn.command(context[:conn], Grakn.Command.create_keyspace(keyspace))
       {:ok, names} = Grakn.command(context[:conn], Grakn.Command.get_keyspaces())
       assert Enum.member?(names, keyspace)

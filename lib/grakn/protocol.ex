@@ -36,7 +36,13 @@ defmodule Grakn.Protocol do
   def handle_begin(opts, %{session: session} = state) do
     case Grakn.Session.transaction(session) do
       {:ok, tx} ->
-        {:ok, tx} = Grakn.Transaction.open(tx, opts[:keyspace] || "grakn", opts[:type] || Grakn.Transaction.Type.read())
+        {:ok, tx} =
+          Grakn.Transaction.open(
+            tx,
+            opts[:keyspace] || "grakn",
+            opts[:type] || Grakn.Transaction.Type.read()
+          )
+
         {:ok, nil, %{state | transaction: tx}}
 
       {:error, reason} ->
@@ -61,11 +67,10 @@ defmodule Grakn.Protocol do
 
       {:error, reason} ->
         {:error,
-          Grakn.Error.exception(
-            "Failed to execute #{inspect(graql)}. Reason: #{Map.get(reason, :message, "unknown")}",
-          reason),
-          state
-        }
+         Grakn.Error.exception(
+           "Failed to execute #{inspect(graql)}. Reason: #{Map.get(reason, :message, "unknown")}",
+           reason
+         ), state}
     end
   end
 
@@ -73,7 +78,12 @@ defmodule Grakn.Protocol do
     {:error, Grakn.Error.exception("Cannot execute a query before starting a tranaction"), state}
   end
 
-  def handle_execute(%Grakn.Command{command: command, params: params}, _, _, %{session: session} = state) do
+  def handle_execute(
+        %Grakn.Command{command: command, params: params},
+        _,
+        _,
+        %{session: session} = state
+      ) do
     session
     |> Grakn.Session.command(command, params)
     |> Tuple.append(state)

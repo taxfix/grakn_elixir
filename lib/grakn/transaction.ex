@@ -22,6 +22,7 @@ defmodule Grakn.Transaction do
     req_stream =
       channel
       |> Session.SessionService.Stub.transaction()
+
     {:ok, {req_stream, []}}
   end
 
@@ -60,6 +61,7 @@ defmodule Grakn.Transaction do
     tx
     |> get_request_stream
     |> GRPC.Stub.cancel()
+
     :ok
   end
 
@@ -119,7 +121,6 @@ defmodule Grakn.Transaction do
     |> get_request_stream
     |> GRPC.Stub.send_request(request, opts)
   end
-
 
   defp get_request_stream({req_stream, _}), do: req_stream
   defp get_response_stream({_, resp_stream}), do: resp_stream

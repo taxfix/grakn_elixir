@@ -20,6 +20,7 @@ defmodule Grakn.Session do
   @spec command(t(), Grakn.Command.command(), keyword()) :: {:ok, any()} | {:error, any()}
   def command(channel, :get_keyspaces, _) do
     request = Keyspace.Keyspace.Retrieve.Req.new()
+
     channel
     |> Keyspace.KeyspaceService.Stub.retrieve(request)
     |> case do
@@ -28,8 +29,9 @@ defmodule Grakn.Session do
     end
   end
 
-  def command(channel, :create_keyspace, [name: name]) do
+  def command(channel, :create_keyspace, name: name) do
     request = Keyspace.Keyspace.Create.Req.new(name: name)
+
     channel
     |> Keyspace.KeyspaceService.Stub.create(request)
     |> case do
@@ -38,8 +40,9 @@ defmodule Grakn.Session do
     end
   end
 
-  def command(channel, :delete_keyspace, [name: name]) do
+  def command(channel, :delete_keyspace, name: name) do
     request = Keyspace.Keyspace.Delete.Req.new(name: name)
+
     channel
     |> Keyspace.KeyspaceService.Stub.delete(request)
     |> case do
@@ -52,6 +55,7 @@ defmodule Grakn.Session do
   def close(channel) do
     channel
     |> GRPC.Stub.end_stream()
+
     :ok
   end
 end

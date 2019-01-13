@@ -1,4 +1,6 @@
 defmodule Grakn.Transaction.Request do
+  @moduledoc false
+
   def open_transaction(keyspace, type) do
     transaction_request(
       :open_req,

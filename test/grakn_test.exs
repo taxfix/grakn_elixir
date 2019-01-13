@@ -125,8 +125,8 @@ defmodule GraknTest do
                    Grakn.query!(conn, Grakn.Query.graql("define car sub entity, has color;"))
                    Grakn.query!(conn, Grakn.Query.graql("insert $c isa car, has color \"red\";"))
 
-                   Grakn.query!(
-                     conn,
+                   conn
+                   |> Grakn.query!(
                      Grakn.Query.graql("match $c isa car, has color $color; get $color;")
                    )
                    |> Enum.to_list()

@@ -1,0 +1,13 @@
+sudo: required
+language: elixir
+elixir:
+  - 1.7.4
+otp_release:
+  - '21.2'
+script:
+  - mix credo
+  - "travis_wait 30 mix dialyzer --plt"
+  - mix dialyzer --halt-exit-status
+cache:
+  - directories:
+      - .dialyzer

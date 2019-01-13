@@ -1,14 +1,5 @@
 defmodule Grakn.Answer do
   @moduledoc false
-  
-  alias Grakn.Transaction
-
-  alias Grakn.Concept
-
-  alias Concept.{
-    Attribute
-  }
-
   def unwrap({:value, %Session.Value{number: %Session.Number{value: value}}})
       when is_binary(value) do
     if String.match?(value, ~r/\d+\.\d+/) do

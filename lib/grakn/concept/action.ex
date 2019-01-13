@@ -1,18 +1,18 @@
 defmodule Grakn.Concept.Action do
   @moduledoc """
   `ConceptAction` should only be used internally by grakn_elixir to fetch
-  concept information laizily.
+  concept information lazily.
 
   Sub modules in `Grakn.Concept` should be the only place where these requests are used
   """
 
-  @type action :: :attribute_value
-  @type t :: %__MODULE__{action: action()}
+  @type name :: :attribute_value
+  @type t :: %__MODULE__{name: name()}
 
-  defstruct [:action]
+  defstruct [:name]
 
-  @spec new(action()) :: t()
-  def new(action), do: struct(__MODULE__, action: action)
+  @spec new(name()) :: t()
+  def new(name), do: struct(__MODULE__, name: name)
 
   def attribute_value, do: new(:attribute_value)
 end

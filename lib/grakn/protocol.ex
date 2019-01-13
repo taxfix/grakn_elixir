@@ -89,13 +89,13 @@ defmodule Grakn.Protocol do
 
   # Handle internal concept actions
   def handle_execute(
-        %Grakn.Concept.Action{action: action},
+        %Grakn.Concept.Action{name: action_name},
         params,
         _,
         %{transaction: tx} = state
       )
-      when is_atom(action) and is_list(params) do
-    apply(Grakn.Transaction, action, [tx | params])
+      when is_atom(action_name) and is_list(params) do
+    apply(Grakn.Transaction, action_name, [tx | params])
     |> Tuple.append(state)
   end
 

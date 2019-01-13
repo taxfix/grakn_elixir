@@ -2,6 +2,8 @@ defmodule Grakn.Transaction do
   @moduledoc false
   alias Grakn.Transaction.Request
 
+  require Logger
+
   defmodule Type do
     @moduledoc false
 
@@ -9,29 +11,34 @@ defmodule Grakn.Transaction do
     @write 1
     @batch 2
 
-    @type t :: unquote(@read) | unquote(@write) | unquote(@batch)
+    @opaque t :: unquote(@read) | unquote(@write) | unquote(@batch)
 
     def read, do: @read
     def write, do: @write
     def batch, do: @batch
   end
 
-  @opaque t :: {GRPC.Client.Stream.t(), GRPC.Client.Stream.t() | nil}
+  @opaque t :: {GRPC.Client.Stream.t(), GRPC.Client.Stream.t()} | {GRPC.Client.Stream.t(), nil}
 
-  @spec new(GRPC.Channel.t()) :: {:ok, t()}
+  @spec new(GRPC.Channel.t()) :: {:ok, t()} | {:error, any()}
   def new(channel) do
     req_stream =
       channel
       |> Session.SessionService.Stub.transaction()
 
-    {:ok, {req_stream, nil}}
+    with %GRPC.Client.Stream{} <- req_stream do
+      {:ok, {req_stream, nil}}
+    else
+      {:error, reason} ->
+        {:error, reason}
+
+      error ->
+        Logger.error("Unable to start transaction stream: #{inspect(error)}")
+        {:error, "Unable to start transaction stream"}
+    end
   end
 
-  @spec open(
-          {GRPC.Client.Stream.t(), GRPC.Client.Stream.t()} | {GRPC.Client.Stream.t(), []},
-          String.t(),
-          Type.t()
-        ) :: {:ok, {GRPC.Client.Stream.t(), GRPC.Client.Stream.t()}}
+  @spec open(t(), String.t(), Type.t()) :: {:ok, t()}
   def open(tx, keyspace, type) do
     request = Request.open_transaction(keyspace, type)
 

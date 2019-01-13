@@ -34,17 +34,15 @@ defmodule Grakn.Protocol do
   end
 
   def handle_begin(opts, %{session: session} = state) do
-    case Grakn.Session.transaction(session) do
-      {:ok, tx} ->
-        {:ok, tx} =
-          Grakn.Transaction.open(
-            tx,
-            opts[:keyspace] || "grakn",
-            opts[:type] || Grakn.Transaction.Type.read()
-          )
-
-        {:ok, nil, %{state | transaction: tx}}
-
+    with {:ok, tx} <- Grakn.Session.transaction(session),
+         {:ok, tx} <-
+           Grakn.Transaction.open(
+             tx,
+             opts[:keyspace] || "grakn",
+             opts[:type] || Grakn.Transaction.Type.read()
+           ) do
+      {:ok, nil, %{state | transaction: tx}}
+    else
       {:error, reason} ->
         {:disconnect, Grakn.Error.exception("Failed to create transaction", reason), state}
     end

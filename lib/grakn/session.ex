@@ -48,10 +48,10 @@ defmodule Grakn.Session do
     end
   end
 
-  @spec close(%GRPC.Client.Stream{}) :: :ok
+  @spec close(t()) :: :ok
   def close(channel) do
     channel
-    |> GRPC.Stub.end_stream()
+    |> GRPC.Stub.disconnect()
 
     :ok
   end

@@ -175,7 +175,7 @@ defmodule GraknTest do
 
   describe "commands" do
     test "get all keyspaces should contain the default grakn keyspace", context do
-      assert {:ok, names} = Grakn.command(context[:conn], Grakn.Command.get_keyspaces()))
+      assert {:ok, names} = Grakn.command(context[:conn], Grakn.Command.get_keyspaces())
       assert Enum.member?(names, "grakn")
     end
 

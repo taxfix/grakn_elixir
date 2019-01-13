@@ -176,7 +176,7 @@ defmodule GraknTest do
   describe "commands" do
     test "get all keyspaces should contain the default grakn keyspace", context do
       assert {:ok, names} = Grakn.command(context[:conn], Grakn.Command.get_keyspaces())
-      assert Enum.member?(names, "grakn")
+      assert Enum.member?(names, "grakn_elixir_test")
     end
 
     # Create namespace returns an error from server. It seems to be a issue in the

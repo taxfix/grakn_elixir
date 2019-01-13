@@ -1,4 +1,5 @@
 defmodule Grakn.Query do
+  @moduledoc false
 
   @type t :: %__MODULE__{graql: String.t()}
 

@@ -1,11 +1,13 @@
 defmodule Grakn do
   @moduledoc """
-  The main entry point for interacting with Grakn. All functions take a connection reference.
+  The main entry point for interacting with Grakn. All functions take a
+  connection reference.
   """
 
   @typedoc """
   A connection process name, pid or reference.
-  A connection reference is used when making multiple requests within a transaction, see `transaction/3`.
+  A connection reference is used when making multiple requests within a
+  transaction, see `transaction/3`.
   """
   @type conn :: DBConnection.conn()
 
@@ -13,7 +15,7 @@ defmodule Grakn do
   Start and link to a Grakn connnection process.
 
   ### Options
-    * `:hostname` - The hostname of the Grakn server to connect to  (required)
+    * `:hostname` - The hostname of the Grakn server to connect to (required)
     * `:port` - The port of the Grakn server (default: 48555)
   """
   @spec start_link(Keyword.t()) :: {:ok, conn()} | {:error, any}
@@ -22,10 +24,12 @@ defmodule Grakn do
   end
 
   @doc """
-  Execute a query on the connection process. Queries can anly be run run within a transaction, see `transaction/3`.
+  Execute a query on the connection process. Queries can anly be run run within
+  a transaction, see `transaction/3`.
 
   ### Options
-    * `:include_inferences` - Boolean specifying if inferences should be included in the querying process  (default: true)
+    * `:include_inferences` - Boolean specifying if inferences should be
+      included in the querying process (default: true)
   """
   @spec query(conn(), Grakn.Query.t(), Keyword.t()) :: any()
   def query(conn, query, opts \\ []) do
@@ -33,7 +37,8 @@ defmodule Grakn do
   end
 
   @doc """
-  Execute a query on the connection process and raise an exception if there is an error. See `query/3` for documentation.
+  Execute a query on the connection process and raise an exception if there is
+  an error. See `query/3` for documentation.
   """
   @spec query!(conn(), Grakn.Query.t(), Keyword.t()) :: any()
   def query!(conn, %Grakn.Query{} = query, opts \\ []) do
@@ -46,10 +51,13 @@ defmodule Grakn do
   end
 
   @doc """
-  Create a new transaction and execute a sequence of statements within the context of the transaction.
+  Create a new transaction and execute a sequence of statements within the
+  context of the transaction.
 
   ### Options
-    * `:type` - The type of transaction, value must be `Grakn.Transaction.Type.read()` (default), or `Grakn.Transaction.Type.write()`
+    * `:type` - The type of transaction, value must be
+      `Grakn.Transaction.Type.read()` (default), or
+      `Grakn.Transaction.Type.write()`
 
   ### Example
   ```
@@ -75,7 +83,7 @@ defmodule Grakn do
         IO.puts "never reaches here!"
       end)
   """
-  @spec rollback(DBConnection.t, any) :: no_return()
+  @spec rollback(DBConnection.t(), any) :: no_return()
   defdelegate rollback(conn, any), to: DBConnection
 
   def child_spec(opts) do

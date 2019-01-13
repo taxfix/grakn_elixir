@@ -1,5 +1,7 @@
 defmodule Grakn.Command do
 
+  @moduledoc false
+
   @type command :: :get_keyspaces | :create_keyspace | :delete_keyspace
   @type t :: %__MODULE__{command: command(), params: keyword()}
 

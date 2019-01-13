@@ -8,7 +8,7 @@ defmodule Grakn.Session do
     GRPC.Stub.connect(uri)
   end
 
-  @spec transaction(Grakn.Session.t() | t()) :: {:ok, {GRPC.Client.Stream.t(), []}}
+  @spec transaction(t()) :: {:ok, Grakn.Transaction.t()} | {:error, any()}
   def transaction(channel) do
     channel
     |> Grakn.Transaction.new()
@@ -21,8 +21,14 @@ defmodule Grakn.Session do
     channel
     |> Keyspace.KeyspaceService.Stub.retrieve(request)
     |> case do
-      {:ok, %Keyspace.Keyspace.Retrieve.Res{names: names}} -> {:ok, names}
-      error -> error
+      {:ok, %Keyspace.Keyspace.Retrieve.Res{names: names}} ->
+        {:ok, names}
+
+      {:error, reason} ->
+        {:error, reason}
+
+      resp ->
+        {:error, "Unexpected response from service #{inspect(resp)}"}
     end
   end
 
@@ -48,10 +54,10 @@ defmodule Grakn.Session do
     end
   end
 
-  @spec close(%GRPC.Client.Stream{}) :: :ok
+  @spec close(t()) :: :ok
   def close(channel) do
     channel
-    |> GRPC.Stub.end_stream()
+    |> GRPC.Stub.disconnect()
 
     :ok
   end

@@ -1,5 +1,8 @@
 defmodule Grakn.Transaction do
   @moduledoc false
+  alias Grakn.Transaction.Request
+
+  require Logger
 
   defmodule Type do
     @moduledoc false
@@ -8,36 +11,36 @@ defmodule Grakn.Transaction do
     @write 1
     @batch 2
 
-    @type t :: unquote(@read) | unquote(@write) | unquote(@batch)
+    @opaque t :: unquote(@read) | unquote(@write) | unquote(@batch)
 
     def read, do: @read
     def write, do: @write
     def batch, do: @batch
   end
 
-  @opaque t :: {GRPC.Client.Stream.t(), GRPC.Client.Stream.t()}
+  @opaque t :: {GRPC.Client.Stream.t(), GRPC.Client.Stream.t()} | {GRPC.Client.Stream.t(), nil}
 
-  @spec new(%GRPC.Channel{}) ::
-          {:ok, {%GRPC.Client.Stream{}, []} | {:error, map()} | {:ok, map(), map()}}
+  @spec new(GRPC.Channel.t()) :: {:ok, t()} | {:error, any()}
   def new(channel) do
     req_stream =
       channel
       |> Session.SessionService.Stub.transaction()
 
-    {:ok, {req_stream, []}}
+    with %GRPC.Client.Stream{} <- req_stream do
+      {:ok, {req_stream, nil}}
+    else
+      {:error, reason} ->
+        {:error, reason}
+
+      error ->
+        Logger.error("Unable to start transaction stream: #{inspect(error)}")
+        {:error, "Unable to start transaction stream"}
+    end
   end
 
-  @spec open(
-          {GRPC.Client.Stream.t(), GRPC.Client.Stream.t()} | {GRPC.Client.Stream.t(), []},
-          String.t(),
-          Type.t()
-        ) :: {:ok, {GRPC.Client.Stream.t(), GRPC.Client.Stream.t()}}
+  @spec open(t(), String.t(), Type.t()) :: {:ok, t()}
   def open(tx, keyspace, type) do
-    request =
-      transaction_request(
-        :open_req,
-        Session.Transaction.Open.Req.new(keyspace: keyspace, type: type)
-      )
+    request = Request.open_transaction(keyspace, type)
 
     {:ok, resp_stream} =
       tx
@@ -51,11 +54,7 @@ defmodule Grakn.Transaction do
 
   @spec commit(t()) :: :ok
   def commit(tx) do
-    request =
-      transaction_request(
-        :commit_req,
-        Session.Transaction.Commit.Req.new()
-      )
+    request = Request.commit_transaction()
 
     tx |> send_request(request, end_stream: true)
     {:ok, _} = get_response(tx)
@@ -74,17 +73,19 @@ defmodule Grakn.Transaction do
   def query(tx, query, include_inferences \\ true) do
     infer = if include_inferences, do: 0, else: 1
 
-    request =
-      transaction_request(
-        :query_req,
-        Session.Transaction.Query.Req.new(query: query, infer: infer)
-      )
-
-    tx |> send_request(request)
+    tx |> send_request(Request.query(query, infer))
 
     case get_response(tx) do
       {:ok, %{res: {:query_iter, %{id: iterator_id}}}} -> {:ok, create_iterator(tx, iterator_id)}
       error -> error
+    end
+  end
+
+  def attribute_value(tx, attribute_id) when is_bitstring(attribute_id) do
+    tx |> send_request(Request.attribute_value(attribute_id))
+
+    with {:ok, %{res: answer}} <- get_response(tx) do
+      {:ok, Grakn.Answer.unwrap(answer)}
     end
   end
 
@@ -93,12 +94,7 @@ defmodule Grakn.Transaction do
       tx,
       fn tx ->
         tx
-        |> send_request(
-          transaction_request(
-            :iterate_req,
-            Session.Transaction.Iter.Req.new(id: id)
-          )
-        )
+        |> send_request(Request.iterator(id))
 
         case get_response(tx) do
           {:ok, %{res: {:iterate_res, %{res: {:done, _}}}}} ->
@@ -109,10 +105,6 @@ defmodule Grakn.Transaction do
         end
       end
     )
-  end
-
-  defp transaction_request(type, request) do
-    Session.Transaction.Req.new(req: {type, request})
   end
 
   defp get_response(tx) do

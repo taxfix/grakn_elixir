@@ -87,6 +87,18 @@ defmodule Grakn.Protocol do
     |> Tuple.append(state)
   end
 
+  # Handle internal concept actions
+  def handle_execute(
+        %Grakn.Concept.Action{name: action_name},
+        params,
+        _,
+        %{transaction: tx} = state
+      )
+      when is_atom(action_name) and is_list(params) do
+    apply(Grakn.Transaction, action_name, [tx | params])
+    |> Tuple.append(state)
+  end
+
   def handle_rollback(_opts, %{transaction: tx} = state) do
     :ok = Grakn.Transaction.cancel(tx)
     {:ok, nil, %{state | transaction: nil}}

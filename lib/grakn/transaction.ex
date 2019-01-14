@@ -18,7 +18,7 @@ defmodule Grakn.Transaction do
     def batch, do: @batch
   end
 
-  @opaque t :: {GRPC.Client.Stream.t(), GRPC.Client.Stream.t()} | {GRPC.Client.Stream.t(), nil}
+  @opaque t :: {GRPC.Client.Stream.t(), Enumerable.t()} | {Enumerable.t(), nil}
 
   @spec new(GRPC.Channel.t()) :: {:ok, t()} | {:error, any()}
   def new(channel) do
@@ -42,14 +42,17 @@ defmodule Grakn.Transaction do
   def open(tx, keyspace, type) do
     request = Request.open_transaction(keyspace, type)
 
-    {:ok, resp_stream} =
+    req_stream =
       tx
       |> send_request(request)
+
+    {:ok, resp_stream} =
+      req_stream
       |> GRPC.Stub.recv()
 
     {:ok, _} = Enum.at(resp_stream, 0)
 
-    {:ok, put_elem(tx, 1, resp_stream)}
+    {:ok, {req_stream, resp_stream}}
   end
 
   @spec commit(t()) :: :ok
@@ -113,6 +116,7 @@ defmodule Grakn.Transaction do
     |> Enum.at(0)
   end
 
+  @spec send_request(t(), any(), keyword()) :: GRPC.Client.Stream.t()
   defp send_request(tx, request, opts \\ []) do
     tx
     |> get_request_stream()

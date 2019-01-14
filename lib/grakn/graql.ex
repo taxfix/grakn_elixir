@@ -67,12 +67,10 @@ defmodule Grakn.Graql do
         _ -> error(label, opts)
       end)
 
+    modified_opts = [sub: :rule, when: body_patterns, then: head_patterns]
+
     quote do
-      Query.graql(
-        "define #{unquote(label)} sub rule, when { #{unquote(body_patterns)} } then { #{
-          unquote(head_patterns)
-        } };"
-      )
+      define(unquote(label), unquote(modified_opts))
     end
   end
 
@@ -105,9 +103,20 @@ defmodule Grakn.Graql do
   end
 
   def expand_key_values({key, [_ | _] = values}) do
-    values
-    |> Enum.map(fn value -> "#{key} #{value}" end)
-    |> Enum.join(", ")
+    case key do
+      rule_key when rule_key in [:when, :then] ->
+        statements =
+          values
+          |> List.wrap()
+          |> Enum.join("; ")
+
+        "#{rule_key} { #{statements}; }"
+
+      _ ->
+        values
+        |> Enum.map(fn value -> "#{key} #{value}" end)
+        |> Enum.join(", ")
+    end
   end
 
   def expand_key_values({key, value}), do: "#{key} #{value}"

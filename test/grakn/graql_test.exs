@@ -83,4 +83,25 @@ defmodule Grakn.GraqlTest do
     %{graql: graql} = defschema("user", sub: "person", plays: ["actor"], has: ["name"])
     assert graql === "define user sub person, plays actor, has name;"
   end
+
+  test "define a rule" do
+    %{graql: graql_from_fun} =
+      defschema("rule1",
+        sub: :rule,
+        when: ["$person has age 1", "$person has name \"alex\""],
+        then: ["$person has check \"ok\""]
+      )
+
+    %{graql: graql_from_fun} =
+      defschema("rule1",
+        sub: :rule,
+        when: ["$person has age 1", "$person has name \"alex\""],
+        then: ["$person has check \"ok\""]
+      )
+
+    assert graql_from_fun === graql_from_fun
+
+    assert graql_from_fun ===
+             "define rule1 sub rule, when { $person has age 1; $person has name \"alex\"; }, then { $person has check \"ok\"; };"
+  end
 end

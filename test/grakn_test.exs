@@ -174,9 +174,20 @@ defmodule GraknTest do
   end
 
   describe "commands" do
-    test "get all keyspaces should contain the default grakn keyspace", context do
+    test "get all keyspaces should contain a the previously initialized keyspace", context do
+      assert {:ok, _} =
+               Grakn.transaction(
+                 context[:conn],
+                 fn conn ->
+                   {:ok, iterator} = Grakn.query(conn, Grakn.Query.graql("match $x; get;"))
+
+                   assert not Enum.empty?(iterator)
+                 end,
+                 keyspace: @keyspace
+               )
+
       assert {:ok, names} = Grakn.command(context[:conn], Grakn.Command.get_keyspaces())
-      assert Enum.member?(names, "grakn")
+      assert Enum.member?(names, @keyspace)
     end
 
     # Create namespace returns an error from server. It seems to be a issue in the

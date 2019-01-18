@@ -20,7 +20,7 @@ defmodule Grakn do
   """
   @spec start_link(Keyword.t()) :: {:ok, conn()} | {:error, any}
   def start_link(opts \\ []) do
-    DBConnection.start_link(Grakn.Protocol, opts)
+    DBConnection.start_link(Grakn.Protocol, with_start_config(opts))
   end
 
   @doc """
@@ -42,12 +42,12 @@ defmodule Grakn do
   """
   @spec query!(conn(), Grakn.Query.t(), Keyword.t()) :: any()
   def query!(conn, %Grakn.Query{} = query, opts \\ []) do
-    DBConnection.execute!(conn, query, [], opts)
+    DBConnection.execute!(conn, query, [], with_transaction_config(opts))
   end
 
   @spec command(conn(), Grakn.Command.t(), Keyword.t()) :: any()
   def command(conn, %Grakn.Command{} = command, opts \\ []) do
-    DBConnection.execute(conn, command, [], opts)
+    DBConnection.execute(conn, command, [], with_transaction_config(opts))
   end
 
   @doc """
@@ -71,7 +71,9 @@ defmodule Grakn do
   """
   @spec transaction(conn(), (conn() -> result), Keyword.t()) :: {:ok, result} | {:error, any}
         when result: var
-  defdelegate transaction(conn, fun, opts \\ []), to: DBConnection
+  def transaction(conn, fun, opts \\ []) do
+    DBConnection.transaction(conn, fun, with_transaction_config(opts))
+  end
 
   @doc """
   Rollback a transaction, does not return.
@@ -92,4 +94,24 @@ defmodule Grakn do
       start: {__MODULE__, :start_link, [opts]}
     }
   end
+
+  defp with_start_config(opts) do
+    opts
+    |> Keyword.put_new(:pool_size, get_config(:pool_size, 4))
+  end
+
+  defp with_transaction_config(opts) do
+    opts
+    |> Keyword.put_new(:pool_timeout, get_config(:pool_timeout, :infinity))
+    |> Keyword.put_new(:timeout, get_config(:timeout, 30_000))
+    |> Keyword.put_new(:queue, get_config(:queue, true))
+
+    case get_config(:log) do
+      nil -> opts
+      log_function -> opts |> Keyword.put_new(:log, log_function)
+    end
+  end
+
+  defp get_config(key, default \\ nil),
+    do: Application.get_env(:grakn_elixir, key, default)
 end

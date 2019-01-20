@@ -98,12 +98,14 @@ defmodule Grakn do
   defp with_start_config(opts) do
     opts
     |> Keyword.put_new(:pool_size, get_config(:pool_size, 4))
+    |> Keyword.put_new(:pool, DBConnection.Poolboy)
   end
 
   defp with_transaction_config(opts) do
     opts_with_defaults =
       opts
       |> Keyword.put_new(:pool_size, get_config(:pool_size, 4))
+      |> Keyword.put_new(:pool, DBConnection.Poolboy)
       |> Keyword.put_new(:pool_timeout, get_config(:pool_timeout, :infinity))
       |> Keyword.put_new(:timeout, get_config(:timeout, 30_000))
       |> Keyword.put_new(:queue, get_config(:queue, true))

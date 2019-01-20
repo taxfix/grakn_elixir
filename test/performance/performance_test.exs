@@ -44,6 +44,31 @@ defmodule PerformanceTest do
             keyspace: "s_#{:rand.uniform(1000)}_#{System.system_time()}",
             type: Grakn.Transaction.Type.write()
           )
+      end,
+      "insert" => fn ->
+        schema = [
+          define(:attr_a, sub: :attribute, datatype: datatypes().long),
+          define(:a,
+            sub: :entity,
+            has: [:attr_a]
+          )
+        ]
+
+        {:ok, _} =
+          Grakn.transaction(
+            Grakn,
+            fn conn ->
+              for definition <- schema do
+                Grakn.query!(conn, definition)
+              end
+
+              for i <- 1..100 do
+                Grakn.query!(conn, Grakn.Query.graql("insert $x isa a, has attr_a #{i};"))
+              end
+            end,
+            keyspace: "s_#{:rand.uniform(1000)}_#{System.system_time()}",
+            type: Grakn.Transaction.Type.write()
+          )
       end
     },
     parallel: parallel

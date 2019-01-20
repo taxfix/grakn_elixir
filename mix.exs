@@ -23,6 +23,7 @@ defmodule GraknElixir.MixProject do
   defp deps do
     [
       {:db_connection, "~> 1.1.0"},
+      {:poolboy, "~> 1.5.1"},
       {:grpc, "~> 0.3.1"},
       {:protobuf, "~> 0.5.3"},
       {:ex_doc, ">= 0.0.0", only: :dev},

@@ -18,13 +18,16 @@ defmodule Grakn.Transaction do
     def batch, do: @batch
   end
 
+  # 1 hour
+  @transaction_timeout 3.6e+6
+
   @opaque t :: {GRPC.Client.Stream.t(), Enumerable.t()} | {Enumerable.t(), nil}
 
   @spec new(GRPC.Channel.t()) :: {:ok, t()} | {:error, any()}
   def new(channel) do
     req_stream =
       channel
-      |> Session.SessionService.Stub.transaction()
+      |> Session.SessionService.Stub.transaction(timeout: @transaction_timeout)
 
     with %GRPC.Client.Stream{} <- req_stream do
       {:ok, {req_stream, nil}}
@@ -46,27 +49,31 @@ defmodule Grakn.Transaction do
       tx
       |> send_request(request)
 
-    {:ok, resp_stream} =
-      req_stream
-      |> GRPC.Stub.recv()
-
-    {:ok, _} = Enum.at(resp_stream, 0)
-
-    {:ok, {req_stream, resp_stream}}
+    with {:ok, resp_stream} <- GRPC.Stub.recv(req_stream),
+         {:ok, _} <- Enum.at(resp_stream, 0) do
+      {:ok, {req_stream, resp_stream}}
+    end
   end
 
   @spec commit(t()) :: :ok
   def commit(tx) do
     request = Request.commit_transaction()
 
-    tx |> send_request(request, end_stream: true)
-    {:ok, _} = get_response(tx)
-    :ok
+    req_stream =
+      tx
+      |> send_request(request)
+
+    with {:ok, _} <- get_response(tx) do
+      GRPC.Stub.end_stream(req_stream)
+      :ok
+    end
   end
 
+  @spec cancel(t()) :: :ok
   def cancel(tx) do
     tx
     |> get_request_stream
+    |> GRPC.Stub.end_stream()
     |> GRPC.Stub.cancel()
 
     :ok
@@ -76,11 +83,14 @@ defmodule Grakn.Transaction do
   def query(tx, query, include_inferences \\ true) do
     infer = if include_inferences, do: 0, else: 1
 
-    tx |> send_request(Request.query(query, infer))
+    req_stream = send_request(tx, Request.query(query, infer))
 
     case get_response(tx) do
-      {:ok, %{res: {:query_iter, %{id: iterator_id}}}} -> {:ok, create_iterator(tx, iterator_id)}
-      error -> error
+      {:ok, %{res: {:query_iter, %{id: iterator_id}}}} ->
+        {:ok, create_iterator({req_stream, get_response_stream(tx)}, iterator_id)}
+
+      error ->
+        error
     end
   end
 
@@ -96,15 +106,17 @@ defmodule Grakn.Transaction do
     Stream.unfold(
       tx,
       fn tx ->
-        tx
-        |> send_request(Request.iterator(id))
+        req_stream = send_request(tx, Request.iterator(id))
 
         case get_response(tx) do
           {:ok, %{res: {:iterate_res, %{res: {:done, _}}}}} ->
             nil
 
           {:ok, %{res: {:iterate_res, %{res: {:query_iter_res, %{answer: %{answer: answer}}}}}}} ->
-            {Grakn.Answer.unwrap(answer), tx}
+            {Grakn.Answer.unwrap(answer), {req_stream, get_response_stream(tx)}}
+
+          error ->
+            error
         end
       end
     )

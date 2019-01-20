@@ -8,9 +8,9 @@
    ```
 2. From this the root of this repo run the following command:
    ```
-   mix run test/performance/performance_test.exs
+   mix run test/performance/performance_driver.exs
    ```
    If you want to run parallel queries to Elixir pass the a concurrency number as argument
    ```
-   mix run test/performance/performance_test.exs 4
+   mix run test/performance/performance_driver.exs 4
    ```

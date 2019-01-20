@@ -1,4 +1,4 @@
-defmodule PerformanceTest do
+defmodule PerformanceTestDriver do
   use Grakn.Graql
 
   parallel =

@@ -8,11 +8,11 @@ defmodule PerformanceTest do
       [] -> 1
     end
 
+  Grakn.start_link(hostname: "127.0.0.1", name: Grakn)
+
   Benchee.run(
     %{
       "create_schema" => fn ->
-        {:ok, pid} = Grakn.start_link(hostname: "127.0.0.1")
-
         schema = [
           define(:attr_a, sub: :attribute, datatype: datatypes().string),
           define(:attr_b, sub: :attribute, datatype: datatypes().long),
@@ -35,7 +35,7 @@ defmodule PerformanceTest do
 
         {:ok, _} =
           Grakn.transaction(
-            pid,
+            Grakn,
             fn conn ->
               for definition <- schema do
                 Grakn.query!(conn, definition)

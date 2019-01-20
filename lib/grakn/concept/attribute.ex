@@ -1,4 +1,6 @@
 defmodule Grakn.Concept.Attribute do
+  @moduledoc false
+
   alias Grakn.Concept
   alias Grakn.Concept.Action
 

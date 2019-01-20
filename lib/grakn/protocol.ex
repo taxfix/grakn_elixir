@@ -101,7 +101,8 @@ defmodule Grakn.Protocol do
         %{transaction: tx} = state
       )
       when is_atom(action_name) and is_list(params) do
-    apply(Grakn.Transaction, action_name, [tx | params])
+    Grakn.Transaction
+    |> apply(action_name, [tx | params])
     |> Tuple.append(state)
   end
 

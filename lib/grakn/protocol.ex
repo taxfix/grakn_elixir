@@ -2,6 +2,7 @@ defmodule Grakn.Protocol do
   @moduledoc """
   This is the DBConnection behaviour implementation for Grakn database
   """
+  require Logger
 
   use DBConnection
 
@@ -20,8 +21,8 @@ defmodule Grakn.Protocol do
   end
 
   def connect(opts) do
-    case Grakn.Session.new(connection_uri(opts)) do
-      {:ok, session} -> {:ok, %__MODULE__{session: session}}
+    with {:ok, session} <- Grakn.Session.new(connection_uri(opts)) do
+      {:ok, %__MODULE__{session: session}}
     end
   end
 
@@ -44,13 +45,18 @@ defmodule Grakn.Protocol do
       {:ok, nil, %{state | transaction: tx}}
     else
       {:error, reason} ->
-        {:disconnect, Grakn.Error.exception("Failed to create transaction", reason), state}
+        {:error,
+         Grakn.Error.exception(
+           "Failed to create transaction. Reason: #{Map.get(reason, :message, "unknown")}",
+           reason
+         ), state}
     end
   end
 
   def handle_commit(_opts, %{transaction: tx} = state) when transaction_open?(tx) do
-    :ok = Grakn.Transaction.commit(tx)
-    {:ok, nil, %{state | transaction: nil}}
+    with :ok <- Grakn.Transaction.commit(tx) do
+      {:ok, nil, %{state | transaction: nil}}
+    end
   end
 
   def handle_commit(_opts, state) do
@@ -100,7 +106,10 @@ defmodule Grakn.Protocol do
   end
 
   def handle_rollback(_opts, %{transaction: tx} = state) do
-    :ok = Grakn.Transaction.cancel(tx)
+    if Grakn.Transaction.cancel(tx) !== :ok do
+      Logger.warn("Failed to rollback transaction")
+    end
+
     {:ok, nil, %{state | transaction: nil}}
   end
 

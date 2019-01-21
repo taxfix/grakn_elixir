@@ -3,9 +3,12 @@ defmodule Grakn.Session do
 
   @opaque t :: GRPC.Channel.t()
 
+  # every 30 sec
+  @ping_rate 30_000
+
   @spec new(String.t()) :: {:ok, t()} | {:error, any()}
   def new(uri) do
-    GRPC.Stub.connect(uri)
+    GRPC.Stub.connect(uri, adapter_opts: %{http2_opts: %{keepalive: @ping_rate}})
   end
 
   @spec transaction(t()) :: {:ok, Grakn.Transaction.t()} | {:error, any()}

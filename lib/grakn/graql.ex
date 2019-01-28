@@ -40,11 +40,25 @@ defmodule Grakn.Graql do
   defmacro defschema(label, [sub: :entity, plays: _] = opts), do: define_body(label, opts)
   defmacro defschema(label, [sub: :entity, has: _, plays: _] = opts), do: define_body(label, opts)
   defmacro defschema(label, [sub: :entity, plays: _, has: _] = opts), do: define_body(label, opts)
-  defmacro defschema(label, sub: :attribute), do: define_body(label, sub: :attribute)
   defmacro defschema(label, [sub: :attribute, datatype: _] = opts), do: define_body(label, opts)
+  defmacro defschema(label, [sub: :attribute, datatype: _, plays: _] = opts),
+    do: define_body(label, opts)
+
+  defmacro defschema(label, [sub: :attribute, plays: _, datatype: _] = opts),
+    do: define_body(label, opts)
+
   defmacro defschema(label, [sub: :relationship, relates: _] = opts), do: define_body(label, opts)
 
   defmacro defschema(label, [sub: :relationship, relates: _, has: _] = opts),
+    do: define_body(label, opts)
+
+  defmacro defschema(label, [sub: :relationship, relates: _, plays: _] = opts),
+    do: define_body(label, opts)
+
+  defmacro defschema(label, [sub: :relationship, relates: _, has: _, plays: _] = opts),
+    do: define_body(label, opts)
+
+  defmacro defschema(label, [sub: :relationship, relates: _, plays: _, has: _] = opts),
     do: define_body(label, opts)
 
   # Rules
@@ -60,12 +74,11 @@ defmodule Grakn.Graql do
 
     head_patterns =
       head
-      |> List.wrap()
-      |> Enum.map(fn
+      |> case do
         %Grakn.Query{graql: pattern} -> pattern
         string_pattern when is_bitstring(string_pattern) -> string_pattern
         _ -> error(label, opts)
-      end)
+      end
 
     modified_opts = [sub: :rule, when: body_patterns, then: head_patterns]
 
@@ -118,6 +131,8 @@ defmodule Grakn.Graql do
         |> Enum.join(", ")
     end
   end
+
+  def expand_key_values({:then, value}), do: "then { #{value}; }"
 
   def expand_key_values({key, value}), do: "#{key} #{value}"
 end

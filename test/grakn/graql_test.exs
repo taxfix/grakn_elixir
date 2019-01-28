@@ -89,7 +89,7 @@ defmodule Grakn.GraqlTest do
       defschema("rule1",
         sub: :rule,
         when: ["$person has age 1", "$person has name \"alex\""],
-        then: ["$person has check \"ok\""]
+        then: "$person has check \"ok\""
       )
 
     assert graql_from_fun ===

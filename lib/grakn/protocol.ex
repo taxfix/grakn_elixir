@@ -40,7 +40,9 @@ defmodule Grakn.Protocol do
            Grakn.Transaction.open(
              tx,
              opts[:keyspace] || "grakn",
-             opts[:type] || Grakn.Transaction.Type.read()
+             opts[:type] || Grakn.Transaction.Type.read(),
+             opts[:username],
+             opts[:password]
            ) do
       {:ok, nil, %{state | transaction: tx}}
     else

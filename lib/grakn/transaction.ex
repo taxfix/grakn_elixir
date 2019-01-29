@@ -41,7 +41,7 @@ defmodule Grakn.Transaction do
     end
   end
 
-  @spec open(t(), String.t(), Type.t(), Type.t(), Type.t()) :: {:ok, t()}
+  @spec open(t(), String.t(), Type.t(), String.t(), String.t()) :: {:ok, t()}
   def open(tx, keyspace, type, username, password) do
     request = Request.open_transaction(keyspace, type, username, password)
 

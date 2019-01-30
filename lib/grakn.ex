@@ -109,6 +109,8 @@ defmodule Grakn do
       |> Keyword.put_new(:pool_timeout, get_config(:pool_timeout, :infinity))
       |> Keyword.put_new(:timeout, get_config(:timeout, 30_000))
       |> Keyword.put_new(:queue, get_config(:queue, true))
+      |> Keyword.put_new(:username, get_config(:username, ""))
+      |> Keyword.put_new(:password, get_config(:password, ""))
 
     case get_config(:log) do
       nil -> opts_with_defaults

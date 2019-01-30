@@ -1,10 +1,15 @@
 defmodule Grakn.Transaction.Request do
   @moduledoc false
 
-  def open_transaction(keyspace, type) do
+  def open_transaction(keyspace, type, username, password) do
     transaction_request(
       :open_req,
-      Session.Transaction.Open.Req.new(keyspace: keyspace, type: type)
+      Session.Transaction.Open.Req.new(
+        keyspace: keyspace,
+        type: type,
+        username: username,
+        password: password
+      )
     )
   end
 

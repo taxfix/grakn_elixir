@@ -41,9 +41,9 @@ defmodule Grakn.Transaction do
     end
   end
 
-  @spec open(t(), String.t(), Type.t()) :: {:ok, t()}
-  def open(tx, keyspace, type) do
-    request = Request.open_transaction(keyspace, type)
+  @spec open(t(), String.t(), Type.t(), String.t(), String.t()) :: {:ok, t()}
+  def open(tx, keyspace, type, username, password) do
+    request = Request.open_transaction(keyspace, type, username, password)
 
     req_stream =
       tx

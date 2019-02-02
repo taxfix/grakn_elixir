@@ -141,7 +141,7 @@ defmodule Grakn.Transaction do
     Stream.unfold(
       tx,
       fn tx ->
-        req_stream = send_request(tx, Request.iterator(id)) |> IO.inspect()
+        req_stream = send_request(tx, Request.iterator(id))
 
         case get_response(tx) do
           {:ok, %{res: {:iterate_res, %{res: {:done, _}}}}} ->

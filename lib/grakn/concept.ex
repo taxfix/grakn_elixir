@@ -1,6 +1,6 @@
 defmodule Grakn.Concept do
   @moduledoc false
-  
+
   @type t :: Session.Concept.t()
 
   @meta_type 0

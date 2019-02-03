@@ -1,4 +1,8 @@
 defmodule Grakn.Concept.SchemaConcept do
+  @moduledoc """
+  Concept methods for `SchemaConcepts`
+  """
+
   alias Grakn.Concept
   alias Concept.Action
 

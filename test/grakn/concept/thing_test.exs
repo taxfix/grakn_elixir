@@ -10,21 +10,7 @@ defmodule Grakn.Concept.ThingTest do
   @keyspace "grakn_elixir_concept_thing_test"
 
   setup_all do
-    {:ok, conn} = Grakn.start_link(hostname: "localhost")
-    conn |> Grakn.command(Command.delete_keyspace(@keyspace))
-
-    conn
-    |> Grakn.transaction(
-      fn conn ->
-        Grakn.query!(conn, Query.graql("define name sub attribute datatype string;"))
-        Grakn.query!(conn, Query.graql("define identifier sub attribute datatype string;"))
-        Grakn.query!(conn, Query.graql("define person sub entity, has name, has identifier;"))
-      end,
-      keyspace: @keyspace,
-      type: Grakn.Transaction.Type.write()
-    )
-
-    {:ok, conn: conn}
+    Grakn.TestHelper.init_test_keyspace(@keyspace)
   end
 
   describe "attributes/4" do
@@ -48,8 +34,8 @@ defmodule Grakn.Concept.ThingTest do
                Grakn.transaction(
                  context[:conn],
                  fn conn ->
-                   Grakn.query!(
-                     conn,
+                   conn
+                   |> Grakn.query!(
                      Query.graql("match $p isa person, has identifier \"123\"; get;")
                    )
                    |> Enum.to_list()

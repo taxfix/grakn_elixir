@@ -1,4 +1,8 @@
 defmodule Grakn.Concept.Thing do
+  @moduledoc """
+  Common concept methods for all instances (`Things`)
+  """
+
   alias Grakn.Concept
   alias Concept.Action
 

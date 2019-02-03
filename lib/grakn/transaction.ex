@@ -102,6 +102,41 @@ defmodule Grakn.Transaction do
     end
   end
 
+  def attributes_by_type(tx, concept_id, attribute_types)
+      when is_bitstring(concept_id) and is_list(attribute_types) do
+    tx |> send_request(Request.attributes_by_type(concept_id, attribute_types))
+
+    with {:ok, %{res: answer}} <- get_response(tx),
+         {:thing_attributes_iter, %{id: iterator_id}} <- Grakn.Answer.unwrap(answer) do
+      {:ok, create_iterator(tx, iterator_id)}
+    end
+  end
+
+  def get_schema_concept(tx, label) when is_bitstring(label) do
+    tx |> send_request(Request.get_schema_concept(label))
+
+    with {:ok, %{res: answer}} <- get_response(tx) do
+      {:ok, Grakn.Answer.unwrap(answer)}
+    end
+  end
+
+  def get_attribute_types(tx, concept_id) when is_bitstring(concept_id) do
+    tx |> send_request(Request.get_attribute_types(concept_id))
+
+    with {:ok, %{res: answer}} <- get_response(tx),
+         {:type_attributes_iter, %{id: iterator_id}} <- Grakn.Answer.unwrap(answer) do
+      {:ok, create_iterator(tx, iterator_id)}
+    end
+  end
+
+  def concept_label(tx, concept_id) when is_bitstring(concept_id) do
+    tx |> send_request(Request.concept_label(concept_id))
+
+    with {:ok, %{res: answer}} <- get_response(tx) do
+      {:ok, Grakn.Answer.unwrap(answer)}
+    end
+  end
+
   defp create_iterator(tx, id) do
     Stream.unfold(
       tx,
@@ -112,11 +147,14 @@ defmodule Grakn.Transaction do
           {:ok, %{res: {:iterate_res, %{res: {:done, _}}}}} ->
             nil
 
-          {:ok, %{res: {:iterate_res, %{res: {:query_iter_res, %{answer: %{answer: answer}}}}}}} ->
+          {:ok, %{res: {:conceptMethod_iter_res, %{res: {:done, _}}}}} ->
+            nil
+
+          {:ok, %{res: {:iterate_res, %{res: answer}}}} ->
             {Grakn.Answer.unwrap(answer), {req_stream, get_response_stream(tx)}}
 
-          error ->
-            error
+          {:ok, %{res: {:conceptMethod_iter_res, %{res: answer}}}} ->
+            {Grakn.Answer.unwrap(answer), {req_stream, get_response_stream(tx)}}
         end
       end
     )

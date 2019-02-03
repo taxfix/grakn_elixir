@@ -38,6 +38,33 @@ defmodule Grakn.Transaction.Request do
     concept_method_request(attribute_id, :attribute_value_req, Session.Attribute.Value.Req.new())
   end
 
+  def attributes_by_type(concept_id, attribute_types) do
+    concept_method_request(
+      concept_id,
+      :thing_attributes_req,
+      Session.Thing.Attributes.Req.new(attributeTypes: attribute_types)
+    )
+  end
+
+  def get_schema_concept(label) do
+    transaction_request(
+      :getSchemaConcept_req,
+      Session.Transaction.GetSchemaConcept.Req.new(label: label)
+    )
+  end
+
+  def get_attribute_types(concept_id) do
+    concept_method_request(concept_id, :type_attributes_req, Session.Type.Attributes.Req.new())
+  end
+
+  def concept_label(concept_id) do
+    concept_method_request(
+      concept_id,
+      :schemaConcept_getLabel_req,
+      Session.SchemaConcept.GetLabel.Req.new()
+    )
+  end
+
   defp concept_method_request(concept_id, type, request) do
     transaction_request(
       :conceptMethod_req,

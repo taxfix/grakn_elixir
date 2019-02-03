@@ -27,7 +27,7 @@ defmodule Grakn.Concept.SchemaConceptTest do
     {:ok, conn: conn}
   end
 
-  describe "attributes/4" do
+  describe "attribute_types/3" do
     test "fetch existing attribute", context do
       assert {:ok, attributes} =
                Grakn.transaction(
@@ -46,7 +46,26 @@ defmodule Grakn.Concept.SchemaConceptTest do
                  type: Grakn.Transaction.Type.write()
                )
 
-      ["name", "identifier"] === attributes
+      assert ["name", "identifier"] === attributes
+    end
+  end
+
+  describe "labe/3" do
+    test "fetch label", context do
+      assert {:ok, label} =
+               Grakn.transaction(
+                 context[:conn],
+                 fn conn ->
+                   with {:ok, type} <- Concept.SchemaConcept.get("person", conn),
+                        {:ok, label} <- Concept.SchemaConcept.label(type, conn) do
+                     label
+                   end
+                 end,
+                 keyspace: @keyspace,
+                 type: Grakn.Transaction.Type.write()
+               )
+
+      assert "person" === label
     end
   end
 end

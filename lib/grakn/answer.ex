@@ -13,15 +13,9 @@ defmodule Grakn.Answer do
   def unwrap({:conceptSet, %Session.ConceptSet{set: %Session.ConceptIds{ids: ids}}}), do: ids
 
   def unwrap(
-        {:conceptMethod_res,
-         %Session.Transaction.ConceptMethod.Res{
-           response: %Session.Method.Res{
-             res:
-               {:attribute_value_res,
-                %Session.Attribute.Value.Res{
-                  value: %Session.ValueObject{value: {_, value}}
-                }}
-           }
+        {:attribute_value_res,
+         %Session.Attribute.Value.Res{
+           value: %Session.ValueObject{value: {_, value}}
          }}
       ),
       do: value
@@ -30,7 +24,7 @@ defmodule Grakn.Answer do
         {:conceptMethod_res,
          %Session.Transaction.ConceptMethod.Res{response: %Session.Method.Res{res: res}}}
       ),
-      do: res
+      do: unwrap(res)
 
   def unwrap(
         {:conceptMethod_iter_res,
@@ -94,4 +88,9 @@ defmodule Grakn.Answer do
          }}
       ),
       do: schema_concept
+
+  def unwrap({:schemaConcept_getLabel_res, %Session.SchemaConcept.GetLabel.Res{label: label}}),
+    do: label
+
+  def unwrap(other), do: other
 end

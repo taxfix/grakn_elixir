@@ -7,7 +7,7 @@ defmodule Grakn.Concept.SchemaConcept do
     DBConnection.execute(conn, Action.get_schema_concept(), [label], opts)
   end
 
-  @spec get(Concept.t(), DBConnection.t(), keyword()) :: {:ok, Stirng.t()} | {:error, any()}
+  @spec get(Concept.t(), DBConnection.t(), keyword()) :: {:ok, String.t()} | {:error, any()}
   def label(%{id: concept_id}, conn, opts \\ []) do
     DBConnection.execute(conn, Action.concept_label(), [concept_id], opts)
   end

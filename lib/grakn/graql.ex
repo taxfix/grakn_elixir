@@ -41,24 +41,25 @@ defmodule Grakn.Graql do
   defmacro defschema(label, [sub: :entity, has: _, plays: _] = opts), do: define_body(label, opts)
   defmacro defschema(label, [sub: :entity, plays: _, has: _] = opts), do: define_body(label, opts)
   defmacro defschema(label, [sub: :attribute, datatype: _] = opts), do: define_body(label, opts)
+
   defmacro defschema(label, [sub: :attribute, datatype: _, plays: _] = opts),
     do: define_body(label, opts)
 
   defmacro defschema(label, [sub: :attribute, plays: _, datatype: _] = opts),
     do: define_body(label, opts)
 
-  defmacro defschema(label, [sub: :relationship, relates: _] = opts), do: define_body(label, opts)
+  defmacro defschema(label, [sub: :relation, relates: _] = opts), do: define_body(label, opts)
 
-  defmacro defschema(label, [sub: :relationship, relates: _, has: _] = opts),
+  defmacro defschema(label, [sub: :relation, relates: _, has: _] = opts),
     do: define_body(label, opts)
 
-  defmacro defschema(label, [sub: :relationship, relates: _, plays: _] = opts),
+  defmacro defschema(label, [sub: :relation, relates: _, plays: _] = opts),
     do: define_body(label, opts)
 
-  defmacro defschema(label, [sub: :relationship, relates: _, has: _, plays: _] = opts),
+  defmacro defschema(label, [sub: :relation, relates: _, has: _, plays: _] = opts),
     do: define_body(label, opts)
 
-  defmacro defschema(label, [sub: :relationship, relates: _, plays: _, has: _] = opts),
+  defmacro defschema(label, [sub: :relation, relates: _, plays: _, has: _] = opts),
     do: define_body(label, opts)
 
   # Rules

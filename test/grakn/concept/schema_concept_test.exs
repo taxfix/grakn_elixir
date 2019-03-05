@@ -10,7 +10,7 @@ defmodule Grakn.Concept.SchemaConceptTest do
   @keyspace "grakn_elixir_concept_schema_test"
 
   setup_all do
-    Grakn.TestHelper.init_test_keyspace(keyspace)
+    Grakn.TestHelper.init_test_keyspace(@keyspace)
   end
 
   describe "attribute_types/3" do

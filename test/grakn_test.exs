@@ -27,11 +27,13 @@ defmodule GraknTest do
                Grakn.transaction(
                  context[:conn],
                  fn conn ->
-                   {:ok, iterator} = Grakn.query(conn, Grakn.Query.graql("match $x; get;"))
+                   {:ok, iterator} =
+                     Grakn.query(conn, Grakn.Query.graql("match $x isa thing; get;"))
 
                    assert not Enum.empty?(iterator)
                  end,
-                 keyspace: @keyspace
+                 keyspace: @keyspace,
+                 type: Grakn.Transaction.Type.write()
                )
     end
 
@@ -130,7 +132,7 @@ defmodule GraknTest do
                  fn conn ->
                    Grakn.query!(
                      conn,
-                     Grakn.Query.graql("define color sub attribute datatype string;")
+                     Grakn.Query.graql("define color sub attribute, datatype string;")
                    )
 
                    Grakn.query!(conn, Grakn.Query.graql("define car sub entity, has color;"))
@@ -186,15 +188,19 @@ defmodule GraknTest do
 
   describe "commands" do
     test "get all keyspaces should contain a the previously initialized keyspace", context do
+      Grakn.command(context[:conn], Grakn.Command.create_keyspace(@keyspace))
+
       assert {:ok, _} =
                Grakn.transaction(
                  context[:conn],
                  fn conn ->
-                   {:ok, iterator} = Grakn.query(conn, Grakn.Query.graql("match $x; get;"))
+                   {:ok, iterator} =
+                     Grakn.query(conn, Grakn.Query.graql("match $x isa thing; get;"))
 
                    assert not Enum.empty?(iterator)
                  end,
-                 keyspace: @keyspace
+                 keyspace: @keyspace,
+                 type: Grakn.Transaction.Type.write()
                )
 
       assert {:ok, names} = Grakn.command(context[:conn], Grakn.Command.get_keyspaces())

@@ -35,11 +35,13 @@ defmodule Grakn.Protocol do
   end
 
   def handle_begin(opts, %{session: session} = state) do
-    with {:ok, tx} <- Grakn.Session.transaction(session),
+    keyspace = opts[:keyspace] || "grakn"
+
+    with {:ok, tx, session_id} <- Grakn.Session.transaction(session, keyspace),
          {:ok, tx} <-
            Grakn.Transaction.open(
              tx,
-             opts[:keyspace] || "grakn",
+             session_id,
              opts[:type] || Grakn.Transaction.Type.read(),
              opts[:username],
              opts[:password]

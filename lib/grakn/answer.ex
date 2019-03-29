@@ -15,6 +15,14 @@ defmodule Grakn.Answer do
   def unwrap(
         {:attribute_value_res,
          %Session.Attribute.Value.Res{
+           value: %Session.ValueObject{value: {:date, value}}
+         }}
+      ),
+      do: DateTime.from_unix!(value, :millisecond)
+
+  def unwrap(
+        {:attribute_value_res,
+         %Session.Attribute.Value.Res{
            value: %Session.ValueObject{value: {_, value}}
          }}
       ),

@@ -14,9 +14,12 @@ defmodule Grakn do
   @doc """
   Start and link to a Grakn connnection process.
 
-  ### Options
+  ### Single-server Options
     * `:hostname` - The hostname of the Grakn server to connect to (required)
     * `:port` - The port of the Grakn server (default: 48555)
+
+  ### Muti-server Options
+    * `:servers` - A list of server options (e.g. [[hostname: "10.0.0.1", port: 48555], [hostname: "10.0.0.2"]])
   """
   @spec start_link(Keyword.t()) :: {:ok, conn()} | {:error, any}
   def start_link(opts \\ []) do

@@ -1,4 +1,6 @@
 defmodule Grakn.TestHelper do
+  @moduledoc false
+
   def init_test_keyspace(keyspace) do
     {:ok, conn} = Grakn.start_link(hostname: "localhost")
     conn |> Grakn.command(Command.delete_keyspace(@keyspace))

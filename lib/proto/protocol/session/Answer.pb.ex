@@ -7,13 +7,13 @@ defmodule Session.Answer do
         }
   defstruct [:answer]
 
-  oneof(:answer, 0)
-  field(:answerGroup, 1, type: Session.AnswerGroup, oneof: 0)
-  field(:conceptMap, 2, type: Session.ConceptMap, oneof: 0)
-  field(:conceptList, 3, type: Session.ConceptList, oneof: 0)
-  field(:conceptSet, 4, type: Session.ConceptSet, oneof: 0)
-  field(:conceptSetMeasure, 5, type: Session.ConceptSetMeasure, oneof: 0)
-  field(:value, 6, type: Session.Value, oneof: 0)
+  oneof :answer, 0
+  field :answerGroup, 1, type: Session.AnswerGroup, oneof: 0
+  field :conceptMap, 2, type: Session.ConceptMap, oneof: 0
+  field :conceptList, 3, type: Session.ConceptList, oneof: 0
+  field :conceptSet, 4, type: Session.ConceptSet, oneof: 0
+  field :conceptSetMeasure, 5, type: Session.ConceptSetMeasure, oneof: 0
+  field :value, 6, type: Session.Value, oneof: 0
 end
 
 defmodule Session.Explanation do
@@ -26,8 +26,8 @@ defmodule Session.Explanation do
         }
   defstruct [:pattern, :answers]
 
-  field(:pattern, 1, type: :string)
-  field(:answers, 2, repeated: true, type: Session.ConceptMap)
+  field :pattern, 1, type: :string
+  field :answers, 2, repeated: true, type: Session.ConceptMap
 end
 
 defmodule Session.AnswerGroup do
@@ -41,9 +41,9 @@ defmodule Session.AnswerGroup do
         }
   defstruct [:owner, :answers, :explanation]
 
-  field(:owner, 1, type: Session.Concept)
-  field(:answers, 2, repeated: true, type: Session.Answer)
-  field(:explanation, 3, type: Session.Explanation)
+  field :owner, 1, type: Session.Concept
+  field :answers, 2, repeated: true, type: Session.Answer
+  field :explanation, 3, type: Session.Explanation
 end
 
 defmodule Session.ConceptMap do
@@ -56,8 +56,8 @@ defmodule Session.ConceptMap do
         }
   defstruct [:map, :explanation]
 
-  field(:map, 1, repeated: true, type: Session.ConceptMap.MapEntry, map: true)
-  field(:explanation, 2, type: Session.Explanation)
+  field :map, 1, repeated: true, type: Session.ConceptMap.MapEntry, map: true
+  field :explanation, 2, type: Session.Explanation
 end
 
 defmodule Session.ConceptMap.MapEntry do
@@ -70,8 +70,8 @@ defmodule Session.ConceptMap.MapEntry do
         }
   defstruct [:key, :value]
 
-  field(:key, 1, type: :string)
-  field(:value, 2, type: Session.Concept)
+  field :key, 1, type: :string
+  field :value, 2, type: Session.Concept
 end
 
 defmodule Session.ConceptList do
@@ -84,8 +84,8 @@ defmodule Session.ConceptList do
         }
   defstruct [:list, :explanation]
 
-  field(:list, 1, type: Session.ConceptIds)
-  field(:explanation, 2, type: Session.Explanation)
+  field :list, 1, type: Session.ConceptIds
+  field :explanation, 2, type: Session.Explanation
 end
 
 defmodule Session.ConceptSet do
@@ -98,8 +98,8 @@ defmodule Session.ConceptSet do
         }
   defstruct [:set, :explanation]
 
-  field(:set, 1, type: Session.ConceptIds)
-  field(:explanation, 2, type: Session.Explanation)
+  field :set, 1, type: Session.ConceptIds
+  field :explanation, 2, type: Session.Explanation
 end
 
 defmodule Session.ConceptSetMeasure do
@@ -113,9 +113,9 @@ defmodule Session.ConceptSetMeasure do
         }
   defstruct [:set, :measurement, :explanation]
 
-  field(:set, 1, type: Session.ConceptIds)
-  field(:measurement, 2, type: Session.Number)
-  field(:explanation, 3, type: Session.Explanation)
+  field :set, 1, type: Session.ConceptIds
+  field :measurement, 2, type: Session.Number
+  field :explanation, 3, type: Session.Explanation
 end
 
 defmodule Session.Value do
@@ -128,8 +128,8 @@ defmodule Session.Value do
         }
   defstruct [:number, :explanation]
 
-  field(:number, 1, type: Session.Number)
-  field(:explanation, 2, type: Session.Explanation)
+  field :number, 1, type: Session.Number
+  field :explanation, 2, type: Session.Explanation
 end
 
 defmodule Session.ConceptIds do
@@ -141,7 +141,7 @@ defmodule Session.ConceptIds do
         }
   defstruct [:ids]
 
-  field(:ids, 1, repeated: true, type: :string)
+  field :ids, 1, repeated: true, type: :string
 end
 
 defmodule Session.Number do
@@ -153,5 +153,5 @@ defmodule Session.Number do
         }
   defstruct [:value]
 
-  field(:value, 1, type: :string)
+  field :value, 1, type: :string
 end

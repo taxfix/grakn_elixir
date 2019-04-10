@@ -23,14 +23,18 @@ defmodule Grakn.Transaction do
 
   @opaque t :: {GRPC.Client.Stream.t(), Enumerable.t()} | {Enumerable.t(), nil}
 
-  @spec new(GRPC.Channel.t()) :: {:ok, t()} | {:error, any()}
-  def new(channel) do
+  @spec new(GRPC.Channel.t(), String.t()) :: {:ok, t(), String.t()} | {:error, any()}
+  def new(channel, keyspace) do
+    {:ok, %{sessionId: session_id}} =
+      channel
+      |> Session.SessionService.Stub.open(Session.Session.Open.Req.new(Keyspace: keyspace))
+
     req_stream =
       channel
       |> Session.SessionService.Stub.transaction(timeout: @transaction_timeout)
 
     with %GRPC.Client.Stream{} <- req_stream do
-      {:ok, {req_stream, nil}}
+      {:ok, {req_stream, nil}, session_id}
     else
       {:error, reason} ->
         {:error, reason}
@@ -42,8 +46,8 @@ defmodule Grakn.Transaction do
   end
 
   @spec open(t(), String.t(), Type.t(), String.t(), String.t()) :: {:ok, t()}
-  def open(tx, keyspace, type, username, password) do
-    request = Request.open_transaction(keyspace, type, username, password)
+  def open(tx, session_id, type, username, password) do
+    request = Request.open_transaction(session_id, type, username, password)
 
     req_stream =
       tx

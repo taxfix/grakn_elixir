@@ -1228,6 +1228,7 @@ defmodule Session.AttributeType.DataType.Res do
   defstruct [:res]
 
   oneof(:res, 0)
+  # credo:disable-for-lines:1
   field(:dataType, 1, type: Session.AttributeType.DATA_TYPE, enum: true, oneof: 0)
   field(:null, 2, type: Session.Null, oneof: 0)
 end

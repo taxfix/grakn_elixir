@@ -76,7 +76,9 @@ defmodule Grakn.Protocol do
       {:error, reason} ->
         {:error,
          Grakn.Error.exception(
-           "Failed to execute #{inspect(graql)}. Reason: #{Map.get(reason, :message, "unknown")}",
+           "Failed to execute #{inspect(graql, limit: :infinity)}. Reason: #{
+             Map.get(reason, :message, "unknown")
+           }",
            reason
          ), state}
     end

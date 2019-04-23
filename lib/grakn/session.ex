@@ -3,8 +3,8 @@ defmodule Grakn.Session do
 
   @opaque t :: GRPC.Channel.t()
 
-  # every 30 sec
-  @ping_rate 30_000
+  # every 5 min
+  @ping_rate 300_000
 
   @spec new(String.t()) :: {:ok, t()} | {:error, any()}
   def new(uri) do

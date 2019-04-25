@@ -27,8 +27,6 @@ config :grakn_elixir,
   pool_size: 4
 ```
 
+## Testing
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/grakn_elixir](https://hexdocs.pm/grakn_elixir).
-
+For using local grakn, use environment `GRAKN_LOCAL=true`

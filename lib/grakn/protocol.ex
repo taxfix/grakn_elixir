@@ -38,14 +38,9 @@ defmodule Grakn.Protocol do
     keyspace = opts[:keyspace] || "grakn"
 
     with {:ok, tx, session_id} <- Grakn.Session.transaction(session, keyspace),
+         type = opts[:type] || Grakn.Transaction.Type.read(),
          {:ok, tx} <-
-           Grakn.Transaction.open(
-             tx,
-             session_id,
-             opts[:type] || Grakn.Transaction.Type.read(),
-             opts[:username],
-             opts[:password]
-           ) do
+           Grakn.Transaction.open(tx, session_id, type, opts[:username], opts[:password]) do
       {:ok, nil, %{state | transaction: tx}}
     else
       {:error, reason} ->
@@ -121,6 +116,6 @@ defmodule Grakn.Protocol do
   end
 
   defp connection_uri(opts) do
-    "#{Keyword.fetch!(opts, :hostname)}:#{Keyword.get(opts, :port, 48555)}"
+    "#{Keyword.get(opts, :hostname, "localhost")}:#{Keyword.get(opts, :port, 48555)}"
   end
 end

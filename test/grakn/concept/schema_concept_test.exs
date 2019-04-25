@@ -1,16 +1,12 @@
 defmodule Grakn.Concept.SchemaConceptTest do
   use ExUnit.Case
 
-  alias Grakn.{
-    Query,
-    Command,
-    Concept
-  }
+  alias Grakn.Concept.SchemaConcept
 
   @keyspace "grakn_elixir_concept_schema_test"
 
   setup_all do
-    Grakn.TestHelper.init_test_keyspace(@keyspace)
+    TestHelper.init_test_keyspace(@keyspace)
   end
 
   describe "attribute_types/3" do
@@ -19,11 +15,11 @@ defmodule Grakn.Concept.SchemaConceptTest do
                Grakn.transaction(
                  context[:conn],
                  fn conn ->
-                   with {:ok, type} <- Concept.SchemaConcept.get("person", conn),
-                        {:ok, attributes} <- Concept.SchemaConcept.attribute_types(type, conn) do
+                   with {:ok, type} <- SchemaConcept.get("person", conn),
+                        {:ok, attributes} <- SchemaConcept.attribute_types(type, conn) do
                      attributes
                      |> Enum.map(fn att ->
-                       with {:ok, label} <- Concept.SchemaConcept.label(att, conn), do: label
+                       with {:ok, label} <- SchemaConcept.label(att, conn), do: label
                      end)
                      |> Enum.to_list()
                    end
@@ -42,8 +38,8 @@ defmodule Grakn.Concept.SchemaConceptTest do
                Grakn.transaction(
                  context[:conn],
                  fn conn ->
-                   with {:ok, type} <- Concept.SchemaConcept.get("person", conn),
-                        {:ok, label} <- Concept.SchemaConcept.label(type, conn) do
+                   with {:ok, type} <- SchemaConcept.get("person", conn),
+                        {:ok, label} <- SchemaConcept.label(type, conn) do
                      label
                    end
                  end,

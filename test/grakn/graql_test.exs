@@ -37,31 +37,31 @@ defmodule Grakn.GraqlTest do
     assert graql === "define something sub entity, has att1, has att2;"
   end
 
-  test "define a relationship" do
-    %{graql: graql} = defschema("r", sub: :relationship, relates: ["x", "y"])
-    assert graql === "define r sub relationship, relates x, relates y;"
+  test "define a relation" do
+    %{graql: graql} = defschema("r", sub: :relation, relates: ["x", "y"])
+    assert graql === "define r sub relation, relates x, relates y;"
   end
 
-  test "define a relationship with attribute" do
+  test "define a relation with attribute" do
     %{graql: graql} =
       defschema("r",
-        sub: :relationship,
+        sub: :relation,
         relates: ["x", "y"],
         has: "att1"
       )
 
-    assert graql === "define r sub relationship, relates x, relates y, has att1;"
+    assert graql === "define r sub relation, relates x, relates y, has att1;"
   end
 
-  test "define a relationship with multiple attributes" do
+  test "define a relation with multiple attributes" do
     %{graql: graql} =
       defschema("r",
-        sub: :relationship,
+        sub: :relation,
         relates: ["x", "y"],
         has: ["att1", "att2"]
       )
 
-    assert graql === "define r sub relationship, relates x, relates y, has att1, has att2;"
+    assert graql === "define r sub relation, relates x, relates y, has att1, has att2;"
   end
 
   test "define a entity subtype" do

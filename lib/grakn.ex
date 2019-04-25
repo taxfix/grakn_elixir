@@ -15,7 +15,7 @@ defmodule Grakn do
   Start and link to a Grakn connnection process.
 
   ### Single-server Options
-    * `:hostname` - The hostname of the Grakn server to connect to (required)
+    * `:hostname` - The hostname of the Grakn server to connect to (default: "localhost")
     * `:port` - The port of the Grakn server (default: 48555)
 
   ### Muti-server Options

@@ -1,16 +1,12 @@
 defmodule Grakn.Concept.ThingTest do
   use ExUnit.Case
 
-  alias Grakn.{
-    Query,
-    Command,
-    Concept
-  }
+  alias Grakn.{Query, Concept}
 
   @keyspace "grakn_elixir_concept_thing_test"
 
   setup_all do
-    Grakn.TestHelper.init_test_keyspace(@keyspace)
+    TestHelper.init_test_keyspace(@keyspace)
   end
 
   describe "attributes/4" do

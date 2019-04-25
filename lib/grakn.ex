@@ -33,6 +33,7 @@ defmodule Grakn do
   ### Options
     * `:include_inferences` - Boolean specifying if inferences should be
       included in the querying process (default: true)
+    * `:stream` - Boolean specifying if stream should be returned (default: false)
   """
   @spec query(conn(), Grakn.Query.t(), Keyword.t()) :: any()
   def query(conn, query, opts \\ []) do

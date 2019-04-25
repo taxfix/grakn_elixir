@@ -64,9 +64,9 @@ defmodule Grakn.Protocol do
 
   def handle_execute(%{graql: graql}, _params, opts, %{transaction: tx} = state)
       when transaction_open?(tx) do
-    case Grakn.Transaction.query(tx, graql, Keyword.get(opts, :include_inferences)) do
-      {:ok, iterator} ->
-        {:ok, iterator, state}
+    case Grakn.Transaction.query(tx, graql, opts) do
+      {:ok, result} ->
+        {:ok, result, state}
 
       {:error, reason} ->
         {:error,

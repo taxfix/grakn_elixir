@@ -122,6 +122,18 @@ defmodule GraknTest do
                  type: Grakn.Transaction.Type.write()
                )
     end
+
+    test "check result", context do
+      insert_person = fn conn ->
+        Grakn.query!(conn, Grakn.Query.graql("insert $x isa person;"))
+      end
+
+      assert {:ok, [%{"x" => %{id: _}}]} =
+               Grakn.transaction(context[:conn], insert_person,
+                 keyspace: @keyspace,
+                 type: Grakn.Transaction.Type.write()
+               )
+    end
   end
 
   describe "concept maps" do

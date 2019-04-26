@@ -13,17 +13,14 @@ defmodule Grakn.Session do
 
   @spec transaction(t(), String.t()) :: {:ok, Grakn.Transaction.t(), String.t()} | {:error, any()}
   def transaction(channel, keyspace) do
-    channel
-    |> Grakn.Transaction.new(keyspace)
+    Grakn.Transaction.new(channel, keyspace)
   end
 
   @spec command(t(), Grakn.Command.command(), keyword()) :: {:ok, any()} | {:error, any()}
   def command(channel, :get_keyspaces, _) do
     request = Keyspace.Keyspace.Retrieve.Req.new()
 
-    channel
-    |> Keyspace.KeyspaceService.Stub.retrieve(request)
-    |> case do
+    case Keyspace.KeyspaceService.Stub.retrieve(channel, request) do
       {:ok, %Keyspace.Keyspace.Retrieve.Res{names: names}} ->
         {:ok, names}
 
@@ -38,9 +35,7 @@ defmodule Grakn.Session do
   def command(channel, :create_keyspace, name: name) do
     request = Keyspace.Keyspace.Create.Req.new(name: name)
 
-    channel
-    |> Keyspace.KeyspaceService.Stub.create(request)
-    |> case do
+    case Keyspace.KeyspaceService.Stub.create(channel, request) do
       {:ok, %Keyspace.Keyspace.Create.Res{}} -> {:ok, nil}
       error -> error
     end
@@ -49,9 +44,7 @@ defmodule Grakn.Session do
   def command(channel, :delete_keyspace, name: name) do
     request = Keyspace.Keyspace.Delete.Req.new(name: name)
 
-    channel
-    |> Keyspace.KeyspaceService.Stub.delete(request)
-    |> case do
+    case Keyspace.KeyspaceService.Stub.delete(channel, request) do
       {:ok, %Keyspace.Keyspace.Delete.Res{}} -> {:ok, nil}
       error -> error
     end
@@ -59,9 +52,7 @@ defmodule Grakn.Session do
 
   @spec close(t()) :: :ok
   def close(channel) do
-    channel
-    |> GRPC.Stub.disconnect()
-
+    GRPC.Stub.disconnect(channel)
     :ok
   end
 end

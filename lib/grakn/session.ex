@@ -11,9 +11,10 @@ defmodule Grakn.Session do
     GRPC.Stub.connect(uri, adapter_opts: %{http2_opts: %{keepalive: @ping_rate}})
   end
 
-  @spec transaction(t(), String.t()) :: {:ok, Grakn.Transaction.t(), String.t()} | {:error, any()}
-  def transaction(channel, keyspace) do
-    Grakn.Transaction.new(channel, keyspace)
+  @spec transaction(t(), String.t(), String.t(), String.t()) ::
+          {:ok, Grakn.Transaction.t(), String.t()} | {:error, any()}
+  def transaction(channel, keyspace, username, password) do
+    Grakn.Transaction.new(channel, keyspace, username, password)
   end
 
   @spec command(t(), Grakn.Command.command(), keyword()) :: {:ok, any()} | {:error, any()}

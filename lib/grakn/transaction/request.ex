@@ -1,16 +1,9 @@
 defmodule Grakn.Transaction.Request do
   @moduledoc false
 
-  def open_transaction(session_id, type, username, password) do
-    transaction_request(
-      :open_req,
-      Session.Transaction.Open.Req.new(
-        sessionId: session_id,
-        type: type,
-        username: username,
-        password: password
-      )
-    )
+  def open_transaction(session_id, type) do
+    request = Session.Transaction.Open.Req.new(sessionId: session_id, type: type)
+    transaction_request(:open_req, request)
   end
 
   def commit_transaction() do

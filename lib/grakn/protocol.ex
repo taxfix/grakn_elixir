@@ -2,6 +2,8 @@ defmodule Grakn.Protocol do
   @moduledoc """
   This is the DBConnection behaviour implementation for Grakn database
   """
+  alias Grakn.{Error, Session, Transaction}
+
   require Logger
 
   use DBConnection
@@ -21,56 +23,54 @@ defmodule Grakn.Protocol do
   end
 
   def connect(opts) do
-    with {:ok, session} <- Grakn.Session.new(connection_uri(opts)) do
+    with {:ok, session} <- Session.new(connection_uri(opts)) do
       {:ok, %__MODULE__{session: session}}
     end
   end
 
   def disconnect(_error, %{session: session}) do
-    Grakn.Session.close(session)
+    Session.close(session)
   end
 
   def handle_begin(_opts, %{transaction: tx} = state) when not is_nil(tx) do
-    {:error, Grakn.Error.exception("Transaction already opened on this connection"), state}
+    {:error, Error.exception("Transaction already opened on this connection"), state}
   end
 
   def handle_begin(opts, %{session: session} = state) do
     keyspace = opts[:keyspace] || "grakn"
+    type = opts[:type] || Transaction.Type.read()
 
-    with {:ok, tx, session_id} <- Grakn.Session.transaction(session, keyspace),
-         type = opts[:type] || Grakn.Transaction.Type.read(),
-         {:ok, tx} <-
-           Grakn.Transaction.open(tx, session_id, type, opts[:username], opts[:password]) do
+    with {:ok, tx, session_id} <-
+           Session.transaction(session, keyspace, opts[:username], opts[:password]),
+         {:ok, tx} <- Transaction.open(tx, session_id, type) do
       {:ok, nil, %{state | transaction: tx}}
     else
       {:error, reason} ->
-        {:error,
-         Grakn.Error.exception(
-           "Failed to create transaction. Reason: #{Map.get(reason, :message, "unknown")}",
-           reason
-         ), state}
+        reason_msg = Map.get(reason, :message, "unknown")
+        exception = Error.exception("Failed to create transaction. Reason: #{reason_msg}", reason)
+        {:error, exception, state}
     end
   end
 
   def handle_commit(_opts, %{transaction: tx} = state) when transaction_open?(tx) do
-    with :ok <- Grakn.Transaction.commit(tx) do
+    with :ok <- Transaction.commit(tx) do
       {:ok, nil, %{state | transaction: nil}}
     end
   end
 
   def handle_commit(_opts, state) do
-    {:error, Grakn.Error.exception("Cannot commit if transaction is not open"), state}
+    {:error, Error.exception("Cannot commit if transaction is not open"), state}
   end
 
   def handle_execute(%{graql: graql}, _params, opts, %{transaction: tx} = state)
       when transaction_open?(tx) do
-    case Grakn.Transaction.query(tx, graql, opts) do
+    case Transaction.query(tx, graql, opts) do
       {:ok, result} ->
         {:ok, result, state}
 
       {:error, reason} ->
         {:error,
-         Grakn.Error.exception(
+         Error.exception(
            "Failed to execute #{inspect(graql, limit: :infinity)}. Reason: #{
              Map.get(reason, :message, "unknown")
            }",
@@ -80,7 +80,7 @@ defmodule Grakn.Protocol do
   end
 
   def handle_execute(%Grakn.Query{}, _, _, state) do
-    {:error, Grakn.Error.exception("Cannot execute a query before starting a tranaction"), state}
+    {:error, Error.exception("Cannot execute a query before starting a tranaction"), state}
   end
 
   def handle_execute(
@@ -90,7 +90,7 @@ defmodule Grakn.Protocol do
         %{session: session} = state
       ) do
     session
-    |> Grakn.Session.command(command, params)
+    |> Session.command(command, params)
     |> Tuple.append(state)
   end
 
@@ -102,13 +102,13 @@ defmodule Grakn.Protocol do
         %{transaction: tx} = state
       )
       when is_atom(action_name) and is_list(params) do
-    Grakn.Transaction
+    Transaction
     |> apply(action_name, [tx | params])
     |> Tuple.append(state)
   end
 
   def handle_rollback(_opts, %{transaction: tx} = state) do
-    if Grakn.Transaction.cancel(tx) !== :ok do
+    if Transaction.cancel(tx) !== :ok do
       Logger.warn("Failed to rollback transaction")
     end
 

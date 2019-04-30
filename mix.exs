@@ -15,13 +15,16 @@ defmodule GraknElixir.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {Grakn.App, []},
+      env: [session_ttl_interval: 5_000, session_ttl: 30_000]
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:cachex, "~> 3.1.0"},
       {:db_connection, "~> 1.1.0"},
       {:poolboy, "~> 1.5.1"},
       {:grpc, "~> 0.3.1"},

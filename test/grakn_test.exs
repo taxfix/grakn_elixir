@@ -6,19 +6,25 @@ defmodule GraknTest do
 
   setup do
     {:ok, conn} = Grakn.start_link(hostname: "localhost")
-    conn |> Grakn.command(Grakn.Command.delete_keyspace(@keyspace))
+    Grakn.command(conn, Grakn.Command.delete_keyspace(@keyspace))
 
-    Grakn.transaction(
-      conn,
-      fn conn ->
-        Grakn.query!(conn, Grakn.Query.graql("define person sub entity;"))
-        Grakn.query!(conn, Grakn.Query.graql("insert $x isa person;"))
-      end,
+    Grakn.transaction(conn, &insert_test_data/1,
       keyspace: @keyspace,
       type: Grakn.Transaction.Type.write()
     )
 
     {:ok, conn: conn}
+  end
+
+  @test_data [
+    "define person sub entity;",
+    "insert $x isa person;"
+  ]
+
+  defp insert_test_data(conn) do
+    for query <- @test_data do
+      Grakn.query!(conn, Grakn.Query.graql(query))
+    end
   end
 
   describe "query" do

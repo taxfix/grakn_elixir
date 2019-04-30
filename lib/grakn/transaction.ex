@@ -23,15 +23,11 @@ defmodule Grakn.Transaction do
 
   @opaque t :: {GRPC.Client.Stream.t(), Enumerable.t()} | {Enumerable.t(), nil}
 
-  @spec new(GRPC.Channel.t(), String.t(), String.t(), String.t()) ::
-          {:ok, t(), String.t()} | {:error, any()}
-  def new(channel, keyspace, username, password) do
-    req = Session.Session.Open.Req.new(Keyspace: keyspace, username: username, password: password)
-    {:ok, %{sessionId: session_id}} = Session.SessionService.Stub.open(channel, req)
-
+  @spec new(GRPC.Channel.t()) :: {:ok, t()} | {:error, any()}
+  def new(channel) do
     case Session.SessionService.Stub.transaction(channel, timeout: @transaction_timeout) do
       %GRPC.Client.Stream{} = req_stream ->
-        {:ok, {req_stream, nil}, session_id}
+        {:ok, {req_stream, nil}}
 
       {:error, reason} ->
         {:error, reason}
@@ -53,14 +49,14 @@ defmodule Grakn.Transaction do
     end
   end
 
-  @spec commit(t()) :: :ok
+  @spec commit(t()) :: {:ok, true} | {:error, any()}
   def commit(tx) do
     request = Request.commit_transaction()
     req_stream = send_request(tx, request)
 
     with {:ok, _} <- get_response(tx) do
       GRPC.Stub.end_stream(req_stream)
-      :ok
+      {:ok, true}
     end
   end
 
@@ -133,16 +129,20 @@ defmodule Grakn.Transaction do
   end
 
   defp get_result(tx, id, opts) do
-    iterator = create_iterator(tx, id)
-    if opts[:stream], do: iterator, else: Enum.to_list(iterator)
+    if opts[:stream] do
+      create_iterator(tx, id)
+    else
+      tx |> create_iterator(id) |> Enum.to_list()
+    end
   end
 
   defp create_iterator(tx, id) do
-    Stream.unfold(tx, &handle_iterator(&1, id))
+    iterator_req = Request.iterator(id)
+    Stream.unfold(tx, &handle_iterator(&1, iterator_req))
   end
 
-  defp handle_iterator(tx, id) do
-    req_stream = send_request(tx, Request.iterator(id))
+  defp handle_iterator(tx, iterator_req) do
+    req_stream = send_request(tx, iterator_req)
 
     case get_response(tx) do
       {:ok, %{res: {:iterate_res, %{res: {:done, _}}}}} ->

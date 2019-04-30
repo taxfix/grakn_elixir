@@ -118,7 +118,7 @@ defmodule Grakn do
 
     case get_config(:log) do
       nil -> opts_with_defaults
-      log_function -> opts_with_defaults |> Keyword.put_new(:log, log_function)
+      log_function -> Keyword.put_new(opts_with_defaults, :log, log_function)
     end
   end
 

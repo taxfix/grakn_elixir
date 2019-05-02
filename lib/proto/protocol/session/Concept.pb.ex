@@ -2,6 +2,7 @@ defmodule Session.Method do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -129,6 +130,7 @@ defmodule Session.Method.Iter do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -137,22 +139,22 @@ defmodule Session.Method.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          schemaConcept_sups_iter_res: Session.SchemaConcept.Sups.Iter.Res.t(),
-          schemaConcept_subs_iter_res: Session.SchemaConcept.Subs.Iter.Res.t(),
-          role_relations_iter_res: Session.Role.Relations.Iter.Res.t(),
-          role_players_iter_res: Session.Role.Players.Iter.Res.t(),
-          type_instances_iter_res: Session.Type.Instances.Iter.Res.t(),
-          type_keys_iter_res: Session.Type.Keys.Iter.Res.t(),
-          type_attributes_iter_res: Session.Type.Attributes.Iter.Res.t(),
-          type_playing_iter_res: Session.Type.Playing.Iter.Res.t(),
-          relationType_roles_iter_res: Session.RelationType.Roles.Iter.Res.t(),
-          thing_keys_iter_res: Session.Thing.Keys.Iter.Res.t(),
-          thing_attributes_iter_res: Session.Thing.Attributes.Iter.Res.t(),
-          thing_relations_iter_res: Session.Thing.Relations.Iter.Res.t(),
-          thing_roles_iter_res: Session.Thing.Roles.Iter.Res.t(),
-          relation_rolePlayersMap_iter_res: Session.Relation.RolePlayersMap.Iter.Res.t(),
-          relation_rolePlayers_iter_res: Session.Relation.RolePlayers.Iter.Res.t(),
-          attribute_owners_iter_res: Session.Attribute.Owners.Iter.Res.t()
+          schemaConcept_sups_iter_res: Session.SchemaConcept.Sups.Iter.Res.t() | nil,
+          schemaConcept_subs_iter_res: Session.SchemaConcept.Subs.Iter.Res.t() | nil,
+          role_relations_iter_res: Session.Role.Relations.Iter.Res.t() | nil,
+          role_players_iter_res: Session.Role.Players.Iter.Res.t() | nil,
+          type_instances_iter_res: Session.Type.Instances.Iter.Res.t() | nil,
+          type_keys_iter_res: Session.Type.Keys.Iter.Res.t() | nil,
+          type_attributes_iter_res: Session.Type.Attributes.Iter.Res.t() | nil,
+          type_playing_iter_res: Session.Type.Playing.Iter.Res.t() | nil,
+          relationType_roles_iter_res: Session.RelationType.Roles.Iter.Res.t() | nil,
+          thing_keys_iter_res: Session.Thing.Keys.Iter.Res.t() | nil,
+          thing_attributes_iter_res: Session.Thing.Attributes.Iter.Res.t() | nil,
+          thing_relations_iter_res: Session.Thing.Relations.Iter.Res.t() | nil,
+          thing_roles_iter_res: Session.Thing.Roles.Iter.Res.t() | nil,
+          relation_rolePlayersMap_iter_res: Session.Relation.RolePlayersMap.Iter.Res.t() | nil,
+          relation_rolePlayers_iter_res: Session.Relation.RolePlayers.Iter.Res.t() | nil,
+          attribute_owners_iter_res: Session.Attribute.Owners.Iter.Res.t() | nil
         }
   defstruct [
     :schemaConcept_sups_iter_res,
@@ -195,6 +197,7 @@ defmodule Session.Null do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -204,7 +207,7 @@ defmodule Session.Concept do
 
   @type t :: %__MODULE__{
           id: String.t(),
-          baseType: integer
+          baseType: atom | integer
         }
   defstruct [:id, :baseType]
 
@@ -216,6 +219,7 @@ defmodule Session.Concept.Delete do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -223,6 +227,7 @@ defmodule Session.Concept.Delete.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -230,6 +235,7 @@ defmodule Session.Concept.Delete.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -253,6 +259,7 @@ defmodule Session.SchemaConcept do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -260,6 +267,7 @@ defmodule Session.SchemaConcept.GetLabel do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -267,6 +275,7 @@ defmodule Session.SchemaConcept.GetLabel.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -286,6 +295,7 @@ defmodule Session.SchemaConcept.SetLabel do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -305,6 +315,7 @@ defmodule Session.SchemaConcept.SetLabel.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -312,6 +323,7 @@ defmodule Session.SchemaConcept.IsImplicit do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -319,6 +331,7 @@ defmodule Session.SchemaConcept.IsImplicit.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -338,6 +351,7 @@ defmodule Session.SchemaConcept.GetSup do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -345,6 +359,7 @@ defmodule Session.SchemaConcept.GetSup.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -366,6 +381,7 @@ defmodule Session.SchemaConcept.SetSup do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -374,7 +390,7 @@ defmodule Session.SchemaConcept.SetSup.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          schemaConcept: Session.Concept.t()
+          schemaConcept: Session.Concept.t() | nil
         }
   defstruct [:schemaConcept]
 
@@ -385,6 +401,7 @@ defmodule Session.SchemaConcept.SetSup.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -392,6 +409,7 @@ defmodule Session.SchemaConcept.Sups do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -399,6 +417,7 @@ defmodule Session.SchemaConcept.Sups.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -419,7 +438,7 @@ defmodule Session.SchemaConcept.Sups.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          schemaConcept: Session.Concept.t()
+          schemaConcept: Session.Concept.t() | nil
         }
   defstruct [:schemaConcept]
 
@@ -430,6 +449,7 @@ defmodule Session.SchemaConcept.Subs do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -437,6 +457,7 @@ defmodule Session.SchemaConcept.Subs.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -457,7 +478,7 @@ defmodule Session.SchemaConcept.Subs.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          schemaConcept: Session.Concept.t()
+          schemaConcept: Session.Concept.t() | nil
         }
   defstruct [:schemaConcept]
 
@@ -468,6 +489,7 @@ defmodule Session.Rule do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -475,6 +497,7 @@ defmodule Session.Rule.When do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -482,6 +505,7 @@ defmodule Session.Rule.When.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -503,6 +527,7 @@ defmodule Session.Rule.Then do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -510,6 +535,7 @@ defmodule Session.Rule.Then.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -531,6 +557,7 @@ defmodule Session.Role do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -538,6 +565,7 @@ defmodule Session.Role.Relations do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -545,6 +573,7 @@ defmodule Session.Role.Relations.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -565,7 +594,7 @@ defmodule Session.Role.Relations.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          relationType: Session.Concept.t()
+          relationType: Session.Concept.t() | nil
         }
   defstruct [:relationType]
 
@@ -576,6 +605,7 @@ defmodule Session.Role.Players do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -583,6 +613,7 @@ defmodule Session.Role.Players.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -603,7 +634,7 @@ defmodule Session.Role.Players.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          type: Session.Concept.t()
+          type: Session.Concept.t() | nil
         }
   defstruct [:type]
 
@@ -614,6 +645,7 @@ defmodule Session.Type do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -621,6 +653,7 @@ defmodule Session.Type.IsAbstract do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -628,6 +661,7 @@ defmodule Session.Type.IsAbstract.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -647,6 +681,7 @@ defmodule Session.Type.SetAbstract do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -666,6 +701,7 @@ defmodule Session.Type.SetAbstract.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -673,6 +709,7 @@ defmodule Session.Type.Instances do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -680,6 +717,7 @@ defmodule Session.Type.Instances.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -700,7 +738,7 @@ defmodule Session.Type.Instances.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          thing: Session.Concept.t()
+          thing: Session.Concept.t() | nil
         }
   defstruct [:thing]
 
@@ -711,6 +749,7 @@ defmodule Session.Type.Attributes do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -718,6 +757,7 @@ defmodule Session.Type.Attributes.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -738,7 +778,7 @@ defmodule Session.Type.Attributes.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          attributeType: Session.Concept.t()
+          attributeType: Session.Concept.t() | nil
         }
   defstruct [:attributeType]
 
@@ -749,6 +789,7 @@ defmodule Session.Type.Keys do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -756,6 +797,7 @@ defmodule Session.Type.Keys.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -776,7 +818,7 @@ defmodule Session.Type.Keys.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          attributeType: Session.Concept.t()
+          attributeType: Session.Concept.t() | nil
         }
   defstruct [:attributeType]
 
@@ -787,6 +829,7 @@ defmodule Session.Type.Playing do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -794,6 +837,7 @@ defmodule Session.Type.Playing.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -814,7 +858,7 @@ defmodule Session.Type.Playing.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          role: Session.Concept.t()
+          role: Session.Concept.t() | nil
         }
   defstruct [:role]
 
@@ -825,6 +869,7 @@ defmodule Session.Type.Key do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -833,7 +878,7 @@ defmodule Session.Type.Key.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          attributeType: Session.Concept.t()
+          attributeType: Session.Concept.t() | nil
         }
   defstruct [:attributeType]
 
@@ -844,6 +889,7 @@ defmodule Session.Type.Key.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -851,6 +897,7 @@ defmodule Session.Type.Has do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -859,7 +906,7 @@ defmodule Session.Type.Has.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          attributeType: Session.Concept.t()
+          attributeType: Session.Concept.t() | nil
         }
   defstruct [:attributeType]
 
@@ -870,6 +917,7 @@ defmodule Session.Type.Has.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -877,6 +925,7 @@ defmodule Session.Type.Plays do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -885,7 +934,7 @@ defmodule Session.Type.Plays.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          role: Session.Concept.t()
+          role: Session.Concept.t() | nil
         }
   defstruct [:role]
 
@@ -896,6 +945,7 @@ defmodule Session.Type.Plays.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -903,6 +953,7 @@ defmodule Session.Type.Unkey do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -911,7 +962,7 @@ defmodule Session.Type.Unkey.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          attributeType: Session.Concept.t()
+          attributeType: Session.Concept.t() | nil
         }
   defstruct [:attributeType]
 
@@ -922,6 +973,7 @@ defmodule Session.Type.Unkey.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -929,6 +981,7 @@ defmodule Session.Type.Unhas do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -937,7 +990,7 @@ defmodule Session.Type.Unhas.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          attributeType: Session.Concept.t()
+          attributeType: Session.Concept.t() | nil
         }
   defstruct [:attributeType]
 
@@ -948,6 +1001,7 @@ defmodule Session.Type.Unhas.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -955,6 +1009,7 @@ defmodule Session.Type.Unplay do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -963,7 +1018,7 @@ defmodule Session.Type.Unplay.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          role: Session.Concept.t()
+          role: Session.Concept.t() | nil
         }
   defstruct [:role]
 
@@ -974,6 +1029,7 @@ defmodule Session.Type.Unplay.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -981,6 +1037,7 @@ defmodule Session.EntityType do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -988,6 +1045,7 @@ defmodule Session.EntityType.Create do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -995,6 +1053,7 @@ defmodule Session.EntityType.Create.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1003,7 +1062,7 @@ defmodule Session.EntityType.Create.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          entity: Session.Concept.t()
+          entity: Session.Concept.t() | nil
         }
   defstruct [:entity]
 
@@ -1014,6 +1073,7 @@ defmodule Session.RelationType do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1021,6 +1081,7 @@ defmodule Session.RelationType.Create do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1028,6 +1089,7 @@ defmodule Session.RelationType.Create.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1036,7 +1098,7 @@ defmodule Session.RelationType.Create.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          relation: Session.Concept.t()
+          relation: Session.Concept.t() | nil
         }
   defstruct [:relation]
 
@@ -1047,6 +1109,7 @@ defmodule Session.RelationType.Roles do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1054,6 +1117,7 @@ defmodule Session.RelationType.Roles.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1074,7 +1138,7 @@ defmodule Session.RelationType.Roles.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          role: Session.Concept.t()
+          role: Session.Concept.t() | nil
         }
   defstruct [:role]
 
@@ -1085,6 +1149,7 @@ defmodule Session.RelationType.Relates do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1093,7 +1158,7 @@ defmodule Session.RelationType.Relates.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          role: Session.Concept.t()
+          role: Session.Concept.t() | nil
         }
   defstruct [:role]
 
@@ -1104,6 +1169,7 @@ defmodule Session.RelationType.Relates.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1111,6 +1177,7 @@ defmodule Session.RelationType.Unrelate do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1119,7 +1186,7 @@ defmodule Session.RelationType.Unrelate.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          role: Session.Concept.t()
+          role: Session.Concept.t() | nil
         }
   defstruct [:role]
 
@@ -1130,6 +1197,7 @@ defmodule Session.RelationType.Unrelate.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1137,6 +1205,7 @@ defmodule Session.AttributeType do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1144,6 +1213,7 @@ defmodule Session.AttributeType.Create do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1152,7 +1222,7 @@ defmodule Session.AttributeType.Create.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          value: Session.ValueObject.t()
+          value: Session.ValueObject.t() | nil
         }
   defstruct [:value]
 
@@ -1164,7 +1234,7 @@ defmodule Session.AttributeType.Create.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          attribute: Session.Concept.t()
+          attribute: Session.Concept.t() | nil
         }
   defstruct [:attribute]
 
@@ -1175,6 +1245,7 @@ defmodule Session.AttributeType.Attribute do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1183,7 +1254,7 @@ defmodule Session.AttributeType.Attribute.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          value: Session.ValueObject.t()
+          value: Session.ValueObject.t() | nil
         }
   defstruct [:value]
 
@@ -1208,6 +1279,7 @@ defmodule Session.AttributeType.DataType do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1215,6 +1287,7 @@ defmodule Session.AttributeType.DataType.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1228,7 +1301,6 @@ defmodule Session.AttributeType.DataType.Res do
   defstruct [:res]
 
   oneof(:res, 0)
-  # credo:disable-for-lines:1
   field(:dataType, 1, type: Session.AttributeType.DATA_TYPE, enum: true, oneof: 0)
   field(:null, 2, type: Session.Null, oneof: 0)
 end
@@ -1237,6 +1309,7 @@ defmodule Session.AttributeType.GetRegex do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1244,6 +1317,7 @@ defmodule Session.AttributeType.GetRegex.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1263,6 +1337,7 @@ defmodule Session.AttributeType.SetRegex do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1282,6 +1357,7 @@ defmodule Session.AttributeType.SetRegex.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1303,6 +1379,7 @@ defmodule Session.Thing do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1310,6 +1387,7 @@ defmodule Session.Thing.IsInferred do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1317,6 +1395,7 @@ defmodule Session.Thing.IsInferred.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1336,6 +1415,7 @@ defmodule Session.Thing.Type do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1343,6 +1423,7 @@ defmodule Session.Thing.Type.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1351,7 +1432,7 @@ defmodule Session.Thing.Type.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          type: Session.Concept.t()
+          type: Session.Concept.t() | nil
         }
   defstruct [:type]
 
@@ -1362,6 +1443,7 @@ defmodule Session.Thing.Keys do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1394,7 +1476,7 @@ defmodule Session.Thing.Keys.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          attribute: Session.Concept.t()
+          attribute: Session.Concept.t() | nil
         }
   defstruct [:attribute]
 
@@ -1405,6 +1487,7 @@ defmodule Session.Thing.Attributes do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1437,7 +1520,7 @@ defmodule Session.Thing.Attributes.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          attribute: Session.Concept.t()
+          attribute: Session.Concept.t() | nil
         }
   defstruct [:attribute]
 
@@ -1448,6 +1531,7 @@ defmodule Session.Thing.Relations do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1480,7 +1564,7 @@ defmodule Session.Thing.Relations.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          relation: Session.Concept.t()
+          relation: Session.Concept.t() | nil
         }
   defstruct [:relation]
 
@@ -1491,6 +1575,7 @@ defmodule Session.Thing.Roles do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1498,6 +1583,7 @@ defmodule Session.Thing.Roles.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1518,7 +1604,7 @@ defmodule Session.Thing.Roles.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          role: Session.Concept.t()
+          role: Session.Concept.t() | nil
         }
   defstruct [:role]
 
@@ -1529,6 +1615,7 @@ defmodule Session.Thing.Relhas do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1537,7 +1624,7 @@ defmodule Session.Thing.Relhas.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          attribute: Session.Concept.t()
+          attribute: Session.Concept.t() | nil
         }
   defstruct [:attribute]
 
@@ -1549,7 +1636,7 @@ defmodule Session.Thing.Relhas.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          relation: Session.Concept.t()
+          relation: Session.Concept.t() | nil
         }
   defstruct [:relation]
 
@@ -1560,6 +1647,7 @@ defmodule Session.Thing.Unhas do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1568,7 +1656,7 @@ defmodule Session.Thing.Unhas.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          attribute: Session.Concept.t()
+          attribute: Session.Concept.t() | nil
         }
   defstruct [:attribute]
 
@@ -1579,6 +1667,7 @@ defmodule Session.Thing.Unhas.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1586,6 +1675,7 @@ defmodule Session.Relation do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1593,6 +1683,7 @@ defmodule Session.Relation.RolePlayersMap do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1600,6 +1691,7 @@ defmodule Session.Relation.RolePlayersMap.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1620,8 +1712,8 @@ defmodule Session.Relation.RolePlayersMap.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          role: Session.Concept.t(),
-          player: Session.Concept.t()
+          role: Session.Concept.t() | nil,
+          player: Session.Concept.t() | nil
         }
   defstruct [:role, :player]
 
@@ -1633,6 +1725,7 @@ defmodule Session.Relation.RolePlayers do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1665,7 +1758,7 @@ defmodule Session.Relation.RolePlayers.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          thing: Session.Concept.t()
+          thing: Session.Concept.t() | nil
         }
   defstruct [:thing]
 
@@ -1676,6 +1769,7 @@ defmodule Session.Relation.Assign do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1684,8 +1778,8 @@ defmodule Session.Relation.Assign.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          role: Session.Concept.t(),
-          player: Session.Concept.t()
+          role: Session.Concept.t() | nil,
+          player: Session.Concept.t() | nil
         }
   defstruct [:role, :player]
 
@@ -1697,6 +1791,7 @@ defmodule Session.Relation.Assign.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1704,6 +1799,7 @@ defmodule Session.Relation.Unassign do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1712,8 +1808,8 @@ defmodule Session.Relation.Unassign.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          role: Session.Concept.t(),
-          player: Session.Concept.t()
+          role: Session.Concept.t() | nil,
+          player: Session.Concept.t() | nil
         }
   defstruct [:role, :player]
 
@@ -1725,6 +1821,7 @@ defmodule Session.Relation.Unassign.Res do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1732,6 +1829,7 @@ defmodule Session.Attribute do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1739,6 +1837,7 @@ defmodule Session.Attribute.Value do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1746,6 +1845,7 @@ defmodule Session.Attribute.Value.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1754,7 +1854,7 @@ defmodule Session.Attribute.Value.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          value: Session.ValueObject.t()
+          value: Session.ValueObject.t() | nil
         }
   defstruct [:value]
 
@@ -1765,6 +1865,7 @@ defmodule Session.Attribute.Owners do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1772,6 +1873,7 @@ defmodule Session.Attribute.Owners.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
+  @type t :: %__MODULE__{}
   defstruct []
 end
 
@@ -1792,7 +1894,7 @@ defmodule Session.Attribute.Owners.Iter.Res do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          thing: Session.Concept.t()
+          thing: Session.Concept.t() | nil
         }
   defstruct [:thing]
 

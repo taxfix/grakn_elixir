@@ -1,8 +1,7 @@
 defmodule Grakn.Command do
-
   @moduledoc false
 
-  @type command :: :get_keyspaces | :create_keyspace | :delete_keyspace
+  @type command :: :get_keyspaces | :create_keyspace | :delete_keyspace | :close_session
   @type t :: %__MODULE__{command: command(), params: keyword()}
 
   defstruct [:command, :params]
@@ -15,6 +14,10 @@ defmodule Grakn.Command do
 
   @spec delete_keyspace(String.t()) :: t()
   def delete_keyspace(name), do: %__MODULE__{command: :delete_keyspace, params: [name: name]}
+
+  @spec close_session(String.t()) :: t()
+  def close_session(session_id),
+    do: %__MODULE__{command: :close_session, params: [session_id: session_id]}
 end
 
 defimpl DBConnection.Query, for: Grakn.Command do

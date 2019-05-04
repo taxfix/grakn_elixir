@@ -24,8 +24,8 @@ defmodule GraknElixir.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:cachex, "~> 3.1.0"},
       {:db_connection, "~> 1.1.0"},
+      {:ex2ms, github: "ericmj/ex2ms"},
       {:poolboy, "~> 1.5.1"},
       {:grpc, "~> 0.3.1"},
       {:protobuf, "~> 0.5.3"},

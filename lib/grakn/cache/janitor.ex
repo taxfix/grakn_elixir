@@ -5,21 +5,20 @@ defmodule Grakn.Cache.Janitor do
   This is a modification for `Cachex.Service.Janitor` to execute custom purge command, which
   additionally can attach actions on purged elements.
   """
+
+  alias Grakn.{Cache, Command}
+
   use GenServer
 
-  alias Cachex.Spec
-  alias Grakn.{Cache, Command}
-  alias Cachex.Query
-
-  import Spec
   require Logger
+  require Cache
 
   @server __MODULE__
 
   @doc """
   Starts a new Janitor process for a cache.
   """
-  @spec start_link(Spec.cache()) :: GenServer.on_start()
+  @spec start_link(Keyword.t()) :: GenServer.on_start()
   def start_link(opts), do: GenServer.start_link(__MODULE__, opts, name: @server)
 
   @doc false
@@ -30,7 +29,7 @@ defmodule Grakn.Cache.Janitor do
   @doc false
   # Executes an expiration cleanup against a cache table.
   def handle_info(:ttl_check, _state) do
-    Cachex.execute(Cache, &clean_ttl_elements/1)
+    clean_ttl_elements()
     {:noreply, schedule_check()}
   end
 
@@ -39,8 +38,8 @@ defmodule Grakn.Cache.Janitor do
     :erlang.send_after(interval, self(), :ttl_check)
   end
 
-  def clean_ttl_elements(cache(name: name)) do
-    for entry(key: key, value: value) <- :ets.select(name, Query.expired()) do
+  def clean_ttl_elements() do
+    for Cache.entry(key: key, value: value) <- Cache.expired() do
       close_session(key, value)
     end
   end

@@ -49,7 +49,7 @@ defmodule Grakn.Channel do
       nil ->
         session_id = open_session(channel, keyspace, username, password)
         session_ttl = Application.get_env(:grakn, :session_ttl, 30_000)
-        Cache.put({:keyspace, keyspace}, %{session_id: session_id, name: name}, ttl: session_ttl)
+        Cache.put({:keyspace, keyspace}, %{session_id: session_id, name: name}, session_ttl)
         {session_id, false}
     end
   end

@@ -1,15 +1,32 @@
 defmodule GraknElixir.MixProject do
   use Mix.Project
 
+  @version "0.2.0"
+
   def project do
     [
       app: :grakn_elixir,
-      version: "0.2.0-dev",
+      description: description(),
+      package: package(),
+      version: @version,
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       dialyzer: [plt_file: {:no_warn, ".dialyzer/local.plt"}]
     ]
+  end
+
+  defp description do
+    """
+    Elixir client for Grakn
+    """
+  end
+
+  defp package do
+    %{
+      licenses: ["MIT"],
+      links: %{"Github" => "https://github.com/taxfix/grakn_elixir"}
+    }
   end
 
   # Run "mix help compile.app" to learn about applications.
@@ -25,7 +42,7 @@ defmodule GraknElixir.MixProject do
   defp deps do
     [
       {:db_connection, "~> 1.1.0"},
-      {:ex2ms, github: "ericmj/ex2ms"},
+      {:ex2ms, "~> 1.5.0"},
       {:poolboy, "~> 1.5.1"},
       {:grpc, "~> 0.3.1"},
       {:protobuf, "~> 0.5.3"},

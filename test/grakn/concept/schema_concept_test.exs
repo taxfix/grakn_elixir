@@ -28,7 +28,7 @@ defmodule Grakn.Concept.SchemaConceptTest do
                  type: Grakn.Transaction.Type.write()
                )
 
-      assert ["name", "identifier"] === attributes
+      assert MapSet.equal?(MapSet.new(attributes), MapSet.new(["name", "identifier"]))
     end
   end
 

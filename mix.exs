@@ -42,7 +42,7 @@ defmodule GraknElixir.MixProject do
   defp deps do
     [
       {:db_connection, "~> 1.1.0"},
-      {:ex2ms, "~> 1.5.0"},
+      {:ex2ms, github: "ericmj/ex2ms"},
       {:poolboy, "~> 1.5.1"},
       {:grpc, "~> 0.3.1"},
       {:protobuf, "~> 0.5.3"},

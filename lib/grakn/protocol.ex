@@ -23,7 +23,9 @@ defmodule Grakn.Protocol do
   end
 
   def connect(opts) do
-    with {:ok, channel} <- Channel.open(connection_uri(opts)) do
+    connection_uri = Grakn.connection_uri(opts)
+
+    with {:ok, channel} <- Channel.open(connection_uri) do
       {:ok, %__MODULE__{channel: channel, name: opts[:name]}}
     end
   end
@@ -110,9 +112,5 @@ defmodule Grakn.Protocol do
     end
 
     {:ok, nil, %{state | transaction: nil}}
-  end
-
-  defp connection_uri(opts) do
-    "#{Keyword.get(opts, :hostname, "localhost")}:#{Keyword.get(opts, :port, 48555)}"
   end
 end

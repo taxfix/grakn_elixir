@@ -52,6 +52,7 @@ defmodule Grakn.Cache.Janitor do
       type, error ->
         error_spec = {type, error, __STACKTRACE__}
         Logger.warn("Couldn't close session #{session_id}, error: #{inspect(error_spec)}")
+        Cache.delete(key)
     end
   end
 end

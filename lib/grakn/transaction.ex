@@ -1,8 +1,18 @@
 defmodule Grakn.Transaction do
   @moduledoc false
-  alias Grakn.Transaction.Request
+  alias Grakn.Transaction.{Request, Type}
 
   require Logger
+
+  defstruct [:name, :username, :password, :keyspace, :type]
+
+  @type request() :: %__MODULE__{
+          name: atom(),
+          username: String.t(),
+          password: String.t(),
+          keyspace: String.t(),
+          type: Type.t()
+        }
 
   defmodule Type do
     @moduledoc false

@@ -20,6 +20,8 @@ defmodule Grakn.Transaction do
 
   # 1 hour
   @transaction_timeout 3.6e+6
+  # 5 min
+  @request_timeout 300_000
 
   @opaque t :: {GRPC.Client.Stream.t(), Enumerable.t()} | {Enumerable.t(), nil}
 
@@ -47,7 +49,7 @@ defmodule Grakn.Transaction do
     request = Request.open_transaction(session_id, type, username, password)
     req_stream = send_request(tx, request)
 
-    with {:ok, resp_stream} <- GRPC.Stub.recv(req_stream),
+    with {:ok, resp_stream} <- GRPC.Stub.recv(req_stream, timeout: @request_timeout),
          {:ok, _} <- Enum.at(resp_stream, 0) do
       {:ok, {req_stream, resp_stream}}
     end

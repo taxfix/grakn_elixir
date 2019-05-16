@@ -27,12 +27,14 @@ defmodule Grakn.Transaction do
 
   @spec new(GRPC.Channel.t(), String.t()) :: {:ok, t(), String.t()} | {:error, any()}
   def new(channel, keyspace) do
-    {:ok, %{sessionId: session_id}} =
-      Session.SessionService.Stub.open(channel, Session.Session.Open.Req.new(Keyspace: keyspace))
-
-    req_stream = Session.SessionService.Stub.transaction(channel, timeout: @transaction_timeout)
-
-    with %GRPC.Client.Stream{} <- req_stream do
+    with {:ok, %{sessionId: session_id}} <-
+           Session.SessionService.Stub.open(
+             channel,
+             Session.Session.Open.Req.new(Keyspace: keyspace)
+           ),
+         req_stream <-
+           Session.SessionService.Stub.transaction(channel, timeout: @transaction_timeout),
+         %GRPC.Client.Stream{} <- req_stream do
       {:ok, {req_stream, nil}, session_id}
     else
       {:error, reason} ->

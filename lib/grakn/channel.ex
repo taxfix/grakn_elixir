@@ -13,57 +13,68 @@ defmodule Grakn.Channel do
     GRPC.Stub.connect(uri, adapter_opts: %{http2_opts: %{keepalive: @ping_rate}})
   end
 
-  @spec open_transaction(t(), String.t(), String.t(), String.t(), atom(), Transaction.t()) ::
+  @spec open_transaction(t(), Transaction.request()) ::
           {:ok, Grakn.Transaction.t(), String.t()} | {:error, any()}
-  def open_transaction(channel, keyspace, username, password, name, type) do
-    {session_id, cached?} = fetch_or_open_session(channel, keyspace, username, password, name)
-
-    with {:ok, tx} <- Grakn.Transaction.new(channel),
-         {:ok, tx} <- Transaction.open(tx, session_id, type) do
-      {:ok, tx, session_id}
-    else
-      {:error, %GRPC.RPCError{message: message}} = error when cached? ->
-        if message =~ ~r/session.*closed/ do
-          # If session was closed by grakn, so we remove it from cache and try again
-          Cache.delete({:keyspace, keyspace})
-          open_transaction(channel, keyspace, username, password, name, type)
-        else
-          error
-        end
-
-      error ->
-        error
+  def open_transaction(channel, %Transaction{type: type} = tx_request) do
+    with {:ok, {session_id, cached?}} <- fetch_or_open_session(channel, tx_request) do
+      with {:ok, tx} <- Grakn.Transaction.new(channel),
+           {:ok, tx} <- Transaction.open(tx, session_id, type) do
+        {:ok, tx, session_id}
+      else
+        error ->
+          may_retry_session(channel, tx_request, error, cached?)
+      end
     end
   end
 
-  defp fetch_or_open_session(channel, keyspace, username, password, nil) do
-    {open_session(channel, keyspace, username, password), false}
+  defp may_retry_session(channel, %{keyspace: keyspace} = tx_request, error, cached?) do
+    with {:error, %GRPC.RPCError{message: message}} when cached? <- error do
+      if message =~ ~r/session.*closed/ do
+        # If session was closed by grakn, so we remove it from cache and try again
+        Cache.delete({:keyspace, keyspace})
+        open_transaction(channel, tx_request)
+      else
+        error
+      end
+    end
   end
 
-  defp fetch_or_open_session(channel, keyspace, username, password, name) do
+  defp fetch_or_open_session(channel, %{name: nil} = tx_request),
+    do: open_session(channel, tx_request)
+
+  defp fetch_or_open_session(channel, %{keyspace: keyspace, name: name} = tx_request) do
     case Cache.fetch({:keyspace, keyspace}) do
       %{session_id: session_id} ->
         Cache.touch({:keyspace, keyspace})
-        {session_id, true}
+        {:ok, {session_id, true}}
 
       nil ->
-        session_id = open_session(channel, keyspace, username, password)
-        session_ttl = Application.get_env(:grakn, :session_ttl, 30_000)
-        Cache.put({:keyspace, keyspace}, %{session_id: session_id, name: name}, session_ttl)
-        {session_id, false}
+        with {:ok, {session_id, cached?}} <- open_session(channel, tx_request) do
+          session_ttl = Application.get_env(:grakn, :session_ttl, 30_000)
+          Cache.put({:keyspace, keyspace}, %{session_id: session_id, name: name}, session_ttl)
+          {:ok, {session_id, cached?}}
+        end
     end
   end
 
-  def open_session(channel, keyspace, username, password) do
+  def open_session(channel, %{keyspace: keyspace, username: username, password: password}) do
     req_opts = [Keyspace: keyspace, username: username, password: password]
     req = Session.Session.Open.Req.new(req_opts)
+    do_open_session(channel, req, nil, 2)
+  end
 
+  defp do_open_session(_channel, _req, last_error, 0), do: {:error, last_error}
+
+  defp do_open_session(channel, req, _last_error, attempts) do
     case Session.SessionService.Stub.open(channel, req) do
-      {:error, %GRPC.RPCError{message: _, status: 2}} ->
-        open_session(channel, keyspace, username, password)
+      {:error, %GRPC.RPCError{message: _, status: 2} = error} ->
+        do_open_session(channel, req, error, attempts - 1)
+
+      {:error, error} ->
+        {:error, error}
 
       {:ok, %{sessionId: session_id}} ->
-        session_id
+        {:ok, {session_id, false}}
     end
   end
 

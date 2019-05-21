@@ -8,7 +8,7 @@ defmodule PerformanceTestDriver do
         [] -> div(:erlang.system_info(:schedulers), 2)
       end
 
-    Grakn.start_link(hostname: "127.0.0.1", name: Grakn)
+    Grakn.start_link(hostname: "127.0.0.1", name: Grakn, pool_size: 16)
 
     Benchee.run(
       %{
@@ -17,7 +17,7 @@ defmodule PerformanceTestDriver do
         "multi_transaction" => &multi_transaction_test/0
       },
       parallel: parallel,
-      time: 30
+      time: 120
     )
   end
 
@@ -55,7 +55,7 @@ defmodule PerformanceTestDriver do
 
   defp insert(conn) do
     create_basic_schema(conn)
-    for i <- 1..50, do: do_insert(conn, i)
+    for i <- 1..250, do: do_insert(conn, i)
   end
 
   @schema [
@@ -78,7 +78,7 @@ defmodule PerformanceTestDriver do
     opts = gen_transaction_opts()
     {:ok, _} = Grakn.transaction(Grakn, &create_basic_schema/1, opts)
 
-    for i <- 1..50 do
+    for i <- 1..250 do
       {:ok, _} = Grakn.transaction(Grakn, &do_insert(&1, i), opts)
     end
   end

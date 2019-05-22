@@ -4,14 +4,15 @@ defmodule Grakn.Transaction do
 
   require Logger
 
-  defstruct [:name, :username, :password, :keyspace, :type]
+  defstruct [:name, :username, :password, :keyspace, :type, :opts]
 
   @type request() :: %__MODULE__{
           name: atom(),
           username: String.t(),
           password: String.t(),
           keyspace: String.t(),
-          type: Type.t()
+          type: Type.t(),
+          opts: Keyword.t()
         }
 
   defmodule Type do
@@ -28,14 +29,11 @@ defmodule Grakn.Transaction do
     def batch, do: @batch
   end
 
-  # 1 hour
-  @transaction_timeout 3.6e+6
-
   @opaque t :: {GRPC.Client.Stream.t(), Enumerable.t()} | {Enumerable.t(), nil}
 
-  @spec new(GRPC.Channel.t()) :: {:ok, t()} | {:error, any()}
-  def new(channel) do
-    case Session.SessionService.Stub.transaction(channel, timeout: @transaction_timeout) do
+  @spec new(GRPC.Channel.t(), Keyword.t()) :: {:ok, t()} | {:error, any()}
+  def new(channel, opts) do
+    case Session.SessionService.Stub.transaction(channel, opts) do
       %GRPC.Client.Stream{} = req_stream ->
         {:ok, {req_stream, nil}}
 
@@ -48,21 +46,21 @@ defmodule Grakn.Transaction do
     end
   end
 
-  @spec open(t(), String.t(), Type.t()) :: {:ok, t()}
-  def open(tx, session_id, type) do
+  @spec open(t(), String.t(), Type.t(), Keyword.t()) :: {:ok, t()}
+  def open(tx, session_id, type, opts) do
     request = Request.open_transaction(session_id, type)
-    req_stream = send_request(tx, request)
+    req_stream = send_request(tx, request, opts)
 
-    with {:ok, resp_stream} <- GRPC.Stub.recv(req_stream),
+    with {:ok, resp_stream} <- GRPC.Stub.recv(req_stream, opts),
          {:ok, _} <- Enum.at(resp_stream, 0) do
       {:ok, {req_stream, resp_stream}}
     end
   end
 
-  @spec commit(t()) :: {:ok, true} | {:error, any()}
-  def commit(tx) do
+  @spec commit(t(), Keyword.t()) :: {:ok, true} | {:error, any()}
+  def commit(tx, opts) do
     request = Request.commit_transaction()
-    req_stream = send_request(tx, request)
+    req_stream = send_request(tx, request, opts)
 
     with {:ok, _} <- get_response(tx) do
       GRPC.Stub.end_stream(req_stream)
@@ -84,7 +82,7 @@ defmodule Grakn.Transaction do
   def query(tx, query, opts \\ []) do
     infer = if opts[:include_inferences], do: 0, else: 1
 
-    req_stream = send_request(tx, Request.query(query, infer))
+    req_stream = send_request(tx, Request.query(query, infer), opts)
 
     case get_response(tx) do
       {:ok, %{res: {:query_iter, %{id: iterator_id}}}} ->
@@ -140,19 +138,19 @@ defmodule Grakn.Transaction do
 
   defp get_result(tx, id, opts) do
     if opts[:stream] do
-      create_iterator(tx, id)
+      create_iterator(tx, id, opts)
     else
-      tx |> create_iterator(id) |> Enum.to_list()
+      tx |> create_iterator(id, opts) |> Enum.to_list()
     end
   end
 
-  defp create_iterator(tx, id) do
+  defp create_iterator(tx, id, opts \\ []) do
     iterator_req = Request.iterator(id)
-    Stream.unfold(tx, &handle_iterator(&1, iterator_req))
+    Stream.unfold(tx, &handle_iterator(&1, iterator_req, opts))
   end
 
-  defp handle_iterator(tx, iterator_req) do
-    req_stream = send_request(tx, iterator_req)
+  defp handle_iterator(tx, iterator_req, opts) do
+    req_stream = send_request(tx, iterator_req, opts)
 
     case get_response(tx) do
       {:ok, %{res: {:iterate_res, %{res: {:done, _}}}}} ->

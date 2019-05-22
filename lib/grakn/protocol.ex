@@ -44,7 +44,8 @@ defmodule Grakn.Protocol do
       keyspace: opts[:keyspace] || "grakn",
       username: opts[:username],
       password: opts[:password],
-      type: opts[:type] || Transaction.Type.read()
+      type: opts[:type] || Transaction.Type.read(),
+      opts: [timeout: opts[:timeout]]
     }
 
     case Channel.open_transaction(channel, transaction_req) do
@@ -58,12 +59,12 @@ defmodule Grakn.Protocol do
     end
   end
 
-  def handle_commit(_opts, %{transaction: tx} = state)
+  def handle_commit(opts, %{transaction: tx} = state)
       when transaction_open?(tx) do
     %{channel: channel, session: session_id, name: name} = state
 
-    with {:ok, _} <- Transaction.commit(tx),
-         {:ok, _} <- Channel.may_close_session(channel, session_id, name) do
+    with {:ok, _} <- Transaction.commit(tx, opts),
+         {:ok, _} <- Channel.may_close_session(channel, session_id, name, opts) do
       {:ok, nil, %{state | transaction: nil, session: nil}}
     else
       {:error, error} -> {error_status(error), error}
@@ -93,9 +94,9 @@ defmodule Grakn.Protocol do
     {:error, Error.exception("Cannot execute a query before starting a tranaction"), state}
   end
 
-  def handle_execute(%Grakn.Command{command: command, params: params}, _, _, state) do
+  def handle_execute(%Grakn.Command{command: command, params: params}, _, opts, state) do
     state.channel
-    |> Channel.command(command, params)
+    |> Channel.command(command, params, opts)
     |> handle_result(state)
   end
 

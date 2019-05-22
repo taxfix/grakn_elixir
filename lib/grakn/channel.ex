@@ -5,8 +5,8 @@ defmodule Grakn.Channel do
 
   @opaque t :: GRPC.Channel.t()
 
-  # every 5 min
-  @ping_rate 300_000
+  @ping_rate :timer.minutes(5)
+  @default_session_ttl :timer.minutes(30)
 
   @spec open(String.t()) :: {:ok, t()} | {:error, any()}
   def open(uri) do
@@ -15,10 +15,10 @@ defmodule Grakn.Channel do
 
   @spec open_transaction(t(), Transaction.request()) ::
           {:ok, Grakn.Transaction.t(), String.t()} | {:error, any()}
-  def open_transaction(channel, %Transaction{type: type} = tx_request) do
+  def open_transaction(channel, %Transaction{type: type, opts: opts} = tx_request) do
     with {:ok, {session_id, cached?}} <- fetch_or_open_session(channel, tx_request) do
-      with {:ok, tx} <- Grakn.Transaction.new(channel),
-           {:ok, tx} <- Transaction.open(tx, session_id, type) do
+      with {:ok, tx} <- Grakn.Transaction.new(channel, opts),
+           {:ok, tx} <- Transaction.open(tx, session_id, type, opts) do
         {:ok, tx, session_id}
       else
         error ->
@@ -50,25 +50,26 @@ defmodule Grakn.Channel do
 
       nil ->
         with {:ok, {session_id, cached?}} <- open_session(channel, tx_request) do
-          session_ttl = Application.get_env(:grakn, :session_ttl, 30_000)
+          session_ttl = Application.get_env(:grakn, :session_ttl, @default_session_ttl)
           Cache.put({:keyspace, keyspace}, %{session_id: session_id, name: name}, session_ttl)
           {:ok, {session_id, cached?}}
         end
     end
   end
 
-  def open_session(channel, %{keyspace: keyspace, username: username, password: password}) do
+  def open_session(channel, tx_request) do
+    %{keyspace: keyspace, username: username, password: password, opts: opts} = tx_request
     req_opts = [Keyspace: keyspace, username: username, password: password]
     req = Session.Session.Open.Req.new(req_opts)
-    do_open_session(channel, req, nil, 2)
+    do_open_session(channel, req, opts, nil, 2)
   end
 
-  defp do_open_session(_channel, _req, last_error, 0), do: {:error, last_error}
+  defp do_open_session(_channel, _req, _opts, last_error, 0), do: {:error, last_error}
 
-  defp do_open_session(channel, req, _last_error, attempts) do
-    case Session.SessionService.Stub.open(channel, req) do
+  defp do_open_session(channel, req, opts, _last_error, attempts) do
+    case Session.SessionService.Stub.open(channel, req, opts) do
       {:error, %GRPC.RPCError{message: _, status: 2} = error} ->
-        do_open_session(channel, req, error, attempts - 1)
+        do_open_session(channel, req, opts, error, attempts - 1)
 
       {:error, error} ->
         {:error, error}
@@ -94,16 +95,16 @@ defmodule Grakn.Channel do
     end
   end
 
-  def command(channel, :create_keyspace, name: name) do
+  def command(channel, :create_keyspace, [name: name], opts) do
     request = Keyspace.Keyspace.Create.Req.new(name: name)
 
-    case Keyspace.KeyspaceService.Stub.create(channel, request) do
+    case Keyspace.KeyspaceService.Stub.create(channel, request, opts) do
       {:ok, %Keyspace.Keyspace.Create.Res{}} -> {:ok, nil}
       error -> error
     end
   end
 
-  def command(channel, :delete_keyspace, name: name) do
+  def command(channel, :delete_keyspace, [name: name], opts) do
     request = Keyspace.Keyspace.Delete.Req.new(name: name)
 
     case Keyspace.KeyspaceService.Stub.delete(channel, request) do
@@ -112,20 +113,22 @@ defmodule Grakn.Channel do
     end
   end
 
-  def command(channel, :close_session, session_id: session_id) do
-    close_session(channel, session_id)
+  def command(channel, :close_session, [session_id: session_id], opts) do
+    close_session(channel, session_id, opts)
   end
 
-  @spec may_close_session(t(), String.t(), atom()) ::
+  @spec may_close_session(t(), String.t(), atom(), Keyword.t()) ::
           {:ok, :ignore} | {:ok, Session.Session.Close.Res.t()} | {:error, any()}
-  def may_close_session(channel, session_id, nil), do: close_session(channel, session_id)
-  def may_close_session(_channel, _session_id, _name), do: {:ok, :ignore}
+  def may_close_session(channel, session_id, nil, opts),
+    do: close_session(channel, session_id, opts)
 
-  @spec close_session(t(), String.t()) ::
+  def may_close_session(_channel, _session_id, _name, _opts), do: {:ok, :ignore}
+
+  @spec close_session(t(), String.t(), Keyword.t()) ::
           {:ok, Session.Session.Close.Res.t()} | {:error, any()}
-  def close_session(channel, session_id) do
+  def close_session(channel, session_id, opts) do
     session_id = Session.Session.Close.Req.new(sessionId: session_id)
-    Session.SessionService.Stub.close(channel, session_id)
+    Session.SessionService.Stub.close(channel, session_id, opts)
   end
 
   @spec close(t()) :: :ok

@@ -12,6 +12,7 @@ defmodule Grakn do
   transaction, see `transaction/3`.
   """
   @type conn :: DBConnection.conn()
+  @default_timeout :timer.minutes(5)
 
   @doc """
   Start and link to a Grakn connnection process.
@@ -186,7 +187,7 @@ defmodule Grakn do
       |> Keyword.put_new(:pool_size, get_config(:pool_size, 4))
       |> Keyword.put_new(:pool, DBConnection.Poolboy)
       |> Keyword.put_new(:pool_timeout, get_config(:pool_timeout, 30_000))
-      |> Keyword.put_new(:timeout, get_config(:timeout, 30_000))
+      |> Keyword.put_new(:timeout, get_config(:timeout, @default_timeout))
       |> Keyword.put_new(:queue, get_config(:queue, true))
       |> Keyword.put_new(:username, get_config(:username, ""))
       |> Keyword.put_new(:password, get_config(:password, ""))

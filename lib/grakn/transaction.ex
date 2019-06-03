@@ -128,6 +128,14 @@ defmodule Grakn.Transaction do
     end
   end
 
+  def is_inferred?(tx, concept_id) when is_binary(concept_id) do
+    send_request(tx, Request.is_inferred?(concept_id))
+
+    with {:ok, %{res: answer}} <- get_response(tx) do
+      {:ok, Grakn.Answer.unwrap(answer)}
+    end
+  end
+
   def concept_label(tx, concept_id) when is_binary(concept_id) do
     send_request(tx, Request.concept_label(concept_id))
 

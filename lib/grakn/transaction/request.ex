@@ -50,6 +50,10 @@ defmodule Grakn.Transaction.Request do
     concept_method_request(concept_id, :type_attributes_req, Session.Type.Attributes.Req.new())
   end
 
+  def is_inferred?(concept_id) do
+    concept_method_request(concept_id, :thing_isInferred_req, Session.Thing.IsInferred.Req.new())
+  end
+
   def concept_label(concept_id) do
     concept_method_request(
       concept_id,

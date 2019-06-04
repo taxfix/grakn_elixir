@@ -62,6 +62,7 @@ defmodule Grakn.Protocol do
   def handle_commit(opts, %{transaction: tx} = state)
       when transaction_open?(tx) do
     %{channel: channel, session: session_id, name: name} = state
+    opts = [timeout: opts[:timeout]]
 
     with {:ok, _} <- Transaction.commit(tx, opts),
          {:ok, _} <- Channel.may_close_session(channel, session_id, name, opts) do
@@ -96,7 +97,7 @@ defmodule Grakn.Protocol do
 
   def handle_execute(%Grakn.Command{command: command, params: params}, _, opts, state) do
     state.channel
-    |> Channel.command(command, params, opts)
+    |> Channel.command(command, params, timeout: opts[:timeout])
     |> handle_result(state)
   end
 

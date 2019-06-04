@@ -79,11 +79,12 @@ defmodule Grakn.Channel do
     end
   end
 
-  @spec command(t(), Grakn.Command.command(), keyword()) :: {:ok, any()} | {:error, any()}
-  def command(channel, :get_keyspaces, _) do
+  @spec command(t(), Grakn.Command.command(), keyword(), keyword()) ::
+          {:ok, any()} | {:error, any()}
+  def command(channel, :get_keyspaces, _, opts) do
     request = Keyspace.Keyspace.Retrieve.Req.new()
 
-    case Keyspace.KeyspaceService.Stub.retrieve(channel, request) do
+    case Keyspace.KeyspaceService.Stub.retrieve(channel, request, opts) do
       {:ok, %Keyspace.Keyspace.Retrieve.Res{names: names}} ->
         {:ok, names}
 
@@ -107,7 +108,7 @@ defmodule Grakn.Channel do
   def command(channel, :delete_keyspace, [name: name], opts) do
     request = Keyspace.Keyspace.Delete.Req.new(name: name)
 
-    case Keyspace.KeyspaceService.Stub.delete(channel, request) do
+    case Keyspace.KeyspaceService.Stub.delete(channel, request, opts) do
       {:ok, %Keyspace.Keyspace.Delete.Res{}} -> {:ok, nil}
       error -> error
     end

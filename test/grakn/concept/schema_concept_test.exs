@@ -28,7 +28,7 @@ defmodule Grakn.Concept.SchemaConceptTest do
                  type: Grakn.Transaction.Type.write()
                )
 
-      assert MapSet.equal?(MapSet.new(attributes), MapSet.new(["name", "identifier"]))
+      assert Enum.sort(attributes) == Enum.sort(["name", "identifier"])
     end
   end
 

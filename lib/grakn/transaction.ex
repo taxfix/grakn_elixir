@@ -46,9 +46,9 @@ defmodule Grakn.Transaction do
     end
   end
 
-  @spec open(t(), String.t(), Type.t(), Keyword.t()) :: {:ok, t()}
-  def open(tx, session_id, type, opts) do
-    request = Request.open_transaction(session_id, type)
+  @spec open(t(), String.t(), Type.t(), request()) :: {:ok, t()}
+  def open(tx, session_id, type, %{username: username, password: password, opts: opts}) do
+    request = Request.open_transaction(session_id, type, username, password)
     req_stream = send_request(tx, request, opts)
 
     with {:ok, resp_stream} <- GRPC.Stub.recv(req_stream, opts),

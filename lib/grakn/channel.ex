@@ -18,7 +18,7 @@ defmodule Grakn.Channel do
   def open_transaction(channel, %Transaction{type: type, opts: opts} = tx_request) do
     with {:ok, {session_id, cached?}} <- fetch_or_open_session(channel, tx_request) do
       with {:ok, tx} <- Grakn.Transaction.new(channel, opts),
-           {:ok, tx} <- Transaction.open(tx, session_id, type, opts) do
+           {:ok, tx} <- Transaction.open(tx, session_id, type, tx_request) do
         {:ok, tx, session_id}
       else
         error ->
@@ -58,8 +58,8 @@ defmodule Grakn.Channel do
   end
 
   def open_session(channel, tx_request) do
-    %{keyspace: keyspace, username: username, password: password, opts: opts} = tx_request
-    req_opts = [Keyspace: keyspace, username: username, password: password]
+    %{keyspace: keyspace, opts: opts} = tx_request
+    req_opts = [Keyspace: keyspace]
     req = Session.Session.Open.Req.new(req_opts)
     do_open_session(channel, req, opts, nil, 2)
   end

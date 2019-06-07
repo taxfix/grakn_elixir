@@ -28,7 +28,7 @@ defmodule Grakn.Channel do
   end
 
   defp may_retry_session(channel, %{keyspace: keyspace} = tx_request, error, cached?) do
-    with {:error, %GRPC.RPCError{message: message}} when cached? <- error do
+    with {:error, %GRPC.RPCError{message: message}} when cached? and not is_nil(message) <- error do
       if message =~ ~r/session.*closed/ or message =~ ~r/null\..*/ do
         # If session was closed by grakn, so we remove it from cache and try again
         Cache.delete({:keyspace, keyspace})

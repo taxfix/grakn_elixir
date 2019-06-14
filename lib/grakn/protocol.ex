@@ -122,7 +122,9 @@ defmodule Grakn.Protocol do
   defp handle_result({:ok, result}, state), do: {:ok, result, state}
   defp handle_result({:error, error}, state), do: {error_status(error), error, state}
 
-  defp error_status(%GRPC.RPCError{message: ":shutdown: " <> _}), do: :disconnect
-  defp error_status(%GRPC.RPCError{message: ":noproc"}), do: :disconnect
+  defp error_status(%GRPC.RPCError{message: message}) do
+    if message =~ ~r/noproc|shutdown/, do: :disconnect, else: :error
+  end
+
   defp error_status(_), do: :error
 end

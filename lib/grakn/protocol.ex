@@ -122,7 +122,7 @@ defmodule Grakn.Protocol do
   defp handle_result({:ok, result}, state), do: {:ok, result, state}
   defp handle_result({:error, error}, state), do: {error_status(error), error, state}
 
-  defp error_status(%GRPC.RPCError{message: message}) do
+  defp error_status(%GRPC.RPCError{message: message}) when is_binary(message) do
     if message =~ ~r/noproc|shutdown/, do: :disconnect, else: :error
   end
 

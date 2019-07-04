@@ -14,27 +14,39 @@ defmodule Grakn.Channel do
   end
 
   @spec open_transaction(t(), Transaction.request()) ::
-          {:ok, Grakn.Transaction.t(), String.t()} | {:error, any()}
+          {:ok, t(), Grakn.Transaction.t(), String.t()} | {:error, any()}
   def open_transaction(channel, %Transaction{type: type, opts: opts} = tx_request) do
-    with {:ok, {session_id, cached?}} <- fetch_or_open_session(channel, tx_request) do
-      with {:ok, tx} <- Grakn.Transaction.new(channel, opts),
-           {:ok, tx} <- Transaction.open(tx, session_id, type, opts) do
-        {:ok, tx, session_id}
-      else
-        error ->
-          may_retry_session(channel, tx_request, error, cached?)
-      end
+    case fetch_or_open_session(channel, tx_request) do
+      {:ok, {session_id, cached?}} ->
+        with {:ok, tx} <- Grakn.Transaction.new(channel, opts),
+             {:ok, tx} <- Transaction.open(tx, session_id, type, opts) do
+          {:ok, channel, tx, session_id}
+        else
+          error ->
+            maybe_reopen_transaction(channel, tx_request, error, cached?)
+        end
+
+      error ->
+        maybe_reopen_transaction(channel, tx_request, error, false)
     end
   end
 
-  defp may_retry_session(channel, %{keyspace: keyspace} = tx_request, error, cached?) do
-    with {:error, %GRPC.RPCError{message: message}} when cached? and not is_nil(message) <- error do
-      if message =~ ~r/session.*closed/ or message =~ ~r/null\..*/ do
-        # If session was closed by grakn, so we remove it from cache and try again
-        Cache.delete({:keyspace, keyspace})
-        open_transaction(channel, tx_request)
-      else
-        error
+  defp maybe_reopen_transaction(channel, tx_request, error, cached?) do
+    %{keyspace: keyspace, conn_opts: conn_opts} = tx_request
+
+    with {:error, %GRPC.RPCError{message: message}} when is_binary(message) <- error do
+      cond do
+        cached? and (message =~ ~r/closed/ or message =~ ~r/null\..*/) ->
+          # If session was closed by grakn, so we remove it from the cache and try again
+          Cache.delete({:keyspace, keyspace})
+          open_transaction(channel, tx_request)
+
+        message =~ ~r/:noproc/ ->
+          connection_uri = Grakn.connection_uri(conn_opts)
+          with {:ok, channel} <- open(connection_uri), do: open_transaction(channel, tx_request)
+
+        true ->
+          error
       end
     end
   end

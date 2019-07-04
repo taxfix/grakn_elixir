@@ -4,7 +4,7 @@ defmodule Grakn.Transaction do
 
   require Logger
 
-  defstruct [:name, :username, :password, :keyspace, :type, :opts]
+  defstruct [:name, :username, :password, :keyspace, :type, :conn_opts, :opts]
 
   @type request() :: %__MODULE__{
           name: atom(),
@@ -12,6 +12,7 @@ defmodule Grakn.Transaction do
           password: String.t(),
           keyspace: String.t(),
           type: Type.t(),
+          conn_opts: Keyword.t(),
           opts: Keyword.t()
         }
 

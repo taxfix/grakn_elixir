@@ -8,7 +8,7 @@ defmodule Grakn.Protocol do
 
   use DBConnection
 
-  defstruct [:channel, :session, :transaction, :name]
+  defstruct [:channel, :session, :transaction, :name, :conn_opts]
 
   defguardp transaction_open?(tx) when not is_nil(tx)
 
@@ -26,7 +26,7 @@ defmodule Grakn.Protocol do
     connection_uri = Grakn.connection_uri(opts)
 
     with {:ok, channel} <- Channel.open(connection_uri) do
-      {:ok, %__MODULE__{channel: channel, name: opts[:name]}}
+      {:ok, %__MODULE__{channel: channel, name: opts[:name], conn_opts: opts}}
     end
   end
 
@@ -38,19 +38,20 @@ defmodule Grakn.Protocol do
     {:error, Error.exception("Transaction already opened on this connection"), state}
   end
 
-  def handle_begin(opts, %{channel: channel, name: name} = state) do
+  def handle_begin(opts, %{channel: channel, name: name, conn_opts: conn_opts} = state) do
     transaction_req = %Transaction{
       name: name,
       keyspace: opts[:keyspace] || "grakn",
       username: opts[:username],
       password: opts[:password],
       type: opts[:type] || Transaction.Type.read(),
+      conn_opts: conn_opts,
       opts: [timeout: opts[:timeout]]
     }
 
     case Channel.open_transaction(channel, transaction_req) do
-      {:ok, tx, session_id} ->
-        {:ok, nil, %{state | transaction: tx, session: session_id}}
+      {:ok, channel, tx, session_id} ->
+        {:ok, nil, %{state | channel: channel, transaction: tx, session: session_id}}
 
       {:error, reason} ->
         reason_msg = Map.get(reason, :message, "unknown")
@@ -122,7 +123,7 @@ defmodule Grakn.Protocol do
   defp handle_result({:ok, result}, state), do: {:ok, result, state}
   defp handle_result({:error, error}, state), do: {error_status(error), error, state}
 
-  defp error_status(%GRPC.RPCError{message: message}) do
+  defp error_status(%GRPC.RPCError{message: message}) when is_binary(message) do
     if message =~ ~r/noproc|shutdown/, do: :disconnect, else: :error
   end
 

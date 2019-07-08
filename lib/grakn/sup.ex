@@ -12,6 +12,7 @@ defmodule Grakn.Sup do
   def init(opts) do
     {name, opts} = Keyword.pop(opts, :name)
     {servers, opts} = Keyword.pop(opts, :servers)
+    {select_strategy, opts} = Keyword.pop(opts, :select_strategy, OnGet.Random)
 
     {children, conn_names} =
       Enum.flat_map_reduce(servers, [], fn server_opts, conn_names ->
@@ -19,7 +20,7 @@ defmodule Grakn.Sup do
         {[child_spec], [conn_name | conn_names]}
       end)
 
-    multix_opts = [name: name, resources: conn_names, on_get: OnGet.Random, on_failure: Grakn]
+    multix_opts = [name: name, resources: conn_names, on_get: select_strategy, on_failure: Grakn]
     Supervisor.init([{Multix.Sup, multix_opts} | children], strategy: :one_for_one)
   end
 

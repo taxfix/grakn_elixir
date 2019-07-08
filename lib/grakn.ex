@@ -24,6 +24,7 @@ defmodule Grakn do
   ### Muti-server Options
     * `:servers` - A list of server options (e.g. [[hostname: "10.0.0.1", port: 48555], [hostname: "10.0.0.2"]])
       `:name` is required to use alongside of this option
+    * `:select_strategy` - select strategy for selecting connection, which implements `Multix.OnGet`
   """
   @spec start_link(Keyword.t()) :: {:ok, conn()} | {:error, any}
   def start_link(opts \\ []) do

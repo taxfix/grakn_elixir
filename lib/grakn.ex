@@ -47,7 +47,7 @@ defmodule Grakn do
   """
   @spec query(conn(), Grakn.Query.t(), Keyword.t()) :: any()
   def query(conn, query, opts \\ []) do
-    DBConnection.execute(conn, query, [], with_transaction_config(opts))
+    DBConnection.execute(get_conn(conn), query, [], with_transaction_config(opts))
   end
 
   @doc """

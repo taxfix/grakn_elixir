@@ -17,7 +17,7 @@ defmodule Grakn.Sup do
     {children, conn_names} =
       Enum.flat_map_reduce(servers, [], fn server_opts, conn_names ->
         {child_spec, conn_name} = named_child(name, opts, server_opts)
-        {[child_spec], [conn_name | conn_names]}
+        {[child_spec], conn_names ++ [conn_name]}
       end)
 
     multix_opts = [name: name, resources: conn_names, on_get: select_strategy, on_failure: Grakn]

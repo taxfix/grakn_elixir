@@ -88,8 +88,7 @@ defmodule Grakn do
   @spec transaction(conn(), (conn() -> result), Keyword.t()) :: {:ok, result} | {:error, any}
         when result: var
   def transaction(conn, fun, opts \\ []) do
-    keyspace = opts[:keyspace] || "grakn"
-    chosen_conn = get_conn(conn, keyspace)
+    chosen_conn = get_conn(conn, opts)
 
     with {:error, error, stacktrace} <- do_transaction(chosen_conn, fun, opts) do
       case error do

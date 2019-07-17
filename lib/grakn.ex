@@ -64,8 +64,6 @@ defmodule Grakn do
     DBConnection.execute(get_conn(conn), command, [], with_transaction_config(opts))
   end
 
-  @known_connection_errors [":shutdown: :econnrefused", ":noproc"]
-
   @doc """
   Create a new transaction and execute a sequence of statements within the
   context of the transaction.
@@ -92,15 +90,9 @@ defmodule Grakn do
 
     with {:error, error, stacktrace} <- do_transaction(chosen_conn, fun, opts) do
       case error do
-        %DBConnection.ConnectionError{} ->
-          Multix.failure(conn, chosen_conn)
-
-        %Grakn.Error{reason: %GRPC.RPCError{message: message}}
-        when message in @known_connection_errors ->
-          Multix.failure(conn, chosen_conn)
-
-        _ ->
-          nil
+        %DBConnection.ConnectionError{} -> Multix.failure(conn, chosen_conn)
+        %Grakn.Error{reason: %GRPC.RPCError{}} -> Multix.failure(conn, chosen_conn)
+        _ -> nil
       end
 
       reraise error, stacktrace

@@ -1,9 +1,9 @@
 sudo: required
 language: elixir
 elixir:
-  - 1.7.4
+  - 1.8.1
 otp_release:
-  - '21.2'
+  - '22.0.7'
 script:
   - mix credo
   - "travis_wait 30 mix dialyzer --plt"

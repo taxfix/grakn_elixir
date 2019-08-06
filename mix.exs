@@ -12,7 +12,10 @@ defmodule GraknElixir.MixProject do
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      dialyzer: [plt_file: {:no_warn, ".dialyzer/local.plt"}]
+      dialyzer: [
+        plt_file: {:no_warn, ".dialyzer/local.plt"},
+        ignore_warnings: "dialyzer_ignore.exs"
+      ]
     ]
   end
 
@@ -49,7 +52,7 @@ defmodule GraknElixir.MixProject do
       {:protobuf, "~> 0.5.3"},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
-      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev], runtime: false},
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
       {:benchee, "~> 0.13", only: :dev}
     ]

@@ -1,5 +1,8 @@
 defmodule Grakn.Answer do
   @moduledoc false
+
+  def unwrap({:void, %Session.Void{message: "Delete successful."}}), do: []
+
   def unwrap({:value, %Session.Value{number: %Session.Number{value: value}}})
       when is_binary(value) do
     if String.match?(value, ~r/\d+\.\d+/) do

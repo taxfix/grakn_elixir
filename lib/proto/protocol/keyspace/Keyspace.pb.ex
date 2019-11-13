@@ -18,8 +18,14 @@ defmodule Keyspace.Keyspace.Retrieve.Req do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{}
-  defstruct []
+  @type t :: %__MODULE__{
+          username: String.t(),
+          password: String.t()
+        }
+  defstruct [:username, :password]
+
+  field :username, 1, type: :string
+  field :password, 2, type: :string
 end
 
 defmodule Keyspace.Keyspace.Retrieve.Res do
@@ -31,35 +37,7 @@ defmodule Keyspace.Keyspace.Retrieve.Res do
         }
   defstruct [:names]
 
-  field(:names, 1, repeated: true, type: :string)
-end
-
-defmodule Keyspace.Keyspace.Create do
-  @moduledoc false
-  use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{}
-  defstruct []
-end
-
-defmodule Keyspace.Keyspace.Create.Req do
-  @moduledoc false
-  use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          name: String.t()
-        }
-  defstruct [:name]
-
-  field(:name, 1, type: :string)
-end
-
-defmodule Keyspace.Keyspace.Create.Res do
-  @moduledoc false
-  use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{}
-  defstruct []
+  field :names, 1, repeated: true, type: :string
 end
 
 defmodule Keyspace.Keyspace.Delete do
@@ -75,11 +53,15 @@ defmodule Keyspace.Keyspace.Delete.Req do
   use Protobuf, syntax: :proto3
 
   @type t :: %__MODULE__{
-          name: String.t()
+          name: String.t(),
+          username: String.t(),
+          password: String.t()
         }
-  defstruct [:name]
+  defstruct [:name, :username, :password]
 
-  field(:name, 1, type: :string)
+  field :name, 1, type: :string
+  field :username, 2, type: :string
+  field :password, 3, type: :string
 end
 
 defmodule Keyspace.Keyspace.Delete.Res do
@@ -94,9 +76,8 @@ defmodule Keyspace.KeyspaceService.Service do
   @moduledoc false
   use GRPC.Service, name: "keyspace.KeyspaceService"
 
-  rpc(:create, Keyspace.Keyspace.Create.Req, Keyspace.Keyspace.Create.Res)
-  rpc(:retrieve, Keyspace.Keyspace.Retrieve.Req, Keyspace.Keyspace.Retrieve.Res)
-  rpc(:delete, Keyspace.Keyspace.Delete.Req, Keyspace.Keyspace.Delete.Res)
+  rpc :retrieve, Keyspace.Keyspace.Retrieve.Req, Keyspace.Keyspace.Retrieve.Res
+  rpc :delete, Keyspace.Keyspace.Delete.Req, Keyspace.Keyspace.Delete.Res
 end
 
 defmodule Keyspace.KeyspaceService.Stub do

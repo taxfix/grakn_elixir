@@ -109,10 +109,10 @@ defmodule Grakn.Channel do
   end
 
   def command(channel, :create_keyspace, [name: name], opts) do
-    request = Keyspace.Keyspace.Create.Req.new(name: name)
+    request = Keyspace.Keyspace.Retrieve.Req.new(name: name)
 
     case Keyspace.KeyspaceService.Stub.create(channel, request, opts) do
-      {:ok, %Keyspace.Keyspace.Create.Res{}} -> {:ok, nil}
+      {:ok, %Keyspace.Keyspace.Retrieve.Res{}} -> {:ok, nil}
       error -> error
     end
   end

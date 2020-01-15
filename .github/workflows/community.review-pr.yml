@@ -1,0 +1,16 @@
+name: Move ready to review pull request to Review in progress
+
+on:
+  pull_request:
+    types: [review_requested]
+
+jobs:
+  automate-project-columns:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: ./.github/actions/community.github-project-automation
+        with:
+          backend: https://integration-api.taxfix.de/api/github-project-automation/
+          project: tax-engine
+          column: Review in progress

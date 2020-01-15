@@ -1,0 +1,16 @@
+name: Move unblocked pull request to Approved
+
+on:
+  pull_request:
+    types: [unlocked]
+
+jobs:
+  automate-project-columns:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: ./.github/actions/community.github-project-automation
+        with:
+          backend: https://integration-api.taxfix.de/api/github-project-automation/
+          project: tax-engine
+          column: Approved

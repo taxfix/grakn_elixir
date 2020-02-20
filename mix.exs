@@ -46,7 +46,7 @@ defmodule GraknElixir.MixProject do
     [
       {:db_connection, "~> 1.1.0"},
       {:multix, github: "taxfix/multix"},
-      {:ex2ms, github: "ericmj/ex2ms"},
+      {:ex2ms, "~> 1.6"},
       {:poolboy, "~> 1.5.1"},
       {:grpc, github: "elixir-grpc/grpc", ref: "6edfd9cb9ce8f19dabd8a3ae68ecd48149d36c2a"},
       {:protobuf, "~> 0.5.3"},

@@ -31,8 +31,20 @@ defmodule TestHelper do
 
   defp define_base_schema(conn) do
     Grakn.query!(conn, Query.graql("define name sub attribute, datatype string;"))
+    Grakn.query!(conn, Query.graql("define is_named sub attribute, datatype boolean;"))
     Grakn.query!(conn, Query.graql("define identifier sub attribute, datatype string;"))
-    Grakn.query!(conn, Query.graql("define person sub entity, has name, has identifier;"))
+
+    Grakn.query!(
+      conn,
+      Query.graql("define person sub entity, has name, has is_named, has identifier;")
+    )
+
+    Grakn.query!(
+      conn,
+      Query.graql(
+        "define r1 sub rule, when { $p isa person; $p has name $name; }, then { $p has is_named true; };"
+      )
+    )
   end
 end
 

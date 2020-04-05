@@ -100,5 +100,8 @@ defmodule Grakn.Answer do
   def unwrap({:schemaConcept_getLabel_res, %Session.SchemaConcept.GetLabel.Res{label: label}}),
     do: label
 
+  def unwrap({:thing_isInferred_res, %Session.Thing.IsInferred.Res{inferred: inferred}}),
+    do: inferred
+
   def unwrap(other), do: other
 end

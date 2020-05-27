@@ -127,6 +127,21 @@ defmodule Grakn.Protocol do
     {status, state}
   end
 
+  @impl DBConnection
+  def handle_prepare(query, opts, state), do: {:ok, query, state}
+
+  @impl DBConnection
+  def handle_fetch(query, cursor, opts, state), do: {:cont, "", state}
+
+  @impl DBConnection
+  def handle_declare(query, params, opt, state), do: {:ok, query, "", state}
+
+  @impl DBConnection
+  def handle_deallocate(query, cursor, opts, state), do: {:ok, "", state}
+
+  @impl DBConnection
+  def handle_close(query, opts, state), do: {:ok, "", state}
+
   defp handle_result({:ok, result}, query, state), do: {:ok, query, result, state}
   defp handle_result({:ok, _, result}, query, state), do: {:ok, query, result, state}
   defp handle_result({:error, error}, _query, state), do: {error_status(error), error, state}

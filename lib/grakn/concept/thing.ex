@@ -14,6 +14,13 @@ defmodule Grakn.Concept.Thing do
   def get_attributes(%{id: concept_id} = concept, attribute_types, conn, opts \\ []) do
     with :ok <- assert_is_thing(concept) do
       DBConnection.execute(conn, Action.attributes_by_type(), [concept_id, attribute_types], opts)
+      |> case do
+        {:ok, _query, result} ->
+          {:ok, result}
+
+        otherwise ->
+          otherwise
+      end
     end
   end
 

@@ -99,17 +99,17 @@ defmodule Grakn.Protocol do
   def handle_execute(%Grakn.Command{params: params} = cmd, _, opts, state) do
     state.channel
     |> Channel.command(cmd, params, timeout: opts[:timeout])
-    |> handle_result(state)
+    |> handle_result(cmd, state)
   end
 
   # Handle internal concept actions
-  def handle_execute(%Grakn.Concept.Action{name: action_name}, params, _, state)
+  def handle_execute(%Grakn.Concept.Action{name: action_name} = query, params, _, state)
       when is_atom(action_name) and is_list(params) do
     %{transaction: tx} = state
 
     Transaction
     |> apply(action_name, [tx | params])
-    |> handle_result(state)
+    |> handle_result(query, state)
   end
 
   def handle_rollback(_opts, %{transaction: tx} = state) do
@@ -127,9 +127,9 @@ defmodule Grakn.Protocol do
     {status, state}
   end
 
-  defp handle_result({:ok, result}, state), do: {:ok, result, state}
-  defp handle_result({:ok, _, result}, state), do: {:ok, result, state}
-  defp handle_result({:error, error}, state), do: {error_status(error), error, state}
+  defp handle_result({:ok, result}, query, state), do: {:ok, query, result, state}
+  defp handle_result({:ok, _, result}, query, state), do: {:ok, query, result, state}
+  defp handle_result({:error, error}, _query, state), do: {error_status(error), error, state}
 
   def ping(state), do: {:ok, state}
 

@@ -91,8 +91,8 @@ defmodule Grakn.Channel do
     end
   end
 
-  @spec command(t(), Grakn.Command.command(), keyword(), keyword()) ::
-          {:ok, any()} | {:error, any()}
+  @spec command(t(), %Grakn.Command{}, keyword(), keyword()) ::
+          {:ok, %Grakn.Command{}, any()} | {:error, any()}
   def command(channel, %Grakn.Command{command: :get_keyspaces} = cmd, _, opts) do
     request = Keyspace.Keyspace.Retrieve.Req.new()
 

@@ -1,0 +1,21 @@
+name: Software Delivery Metrics Workflow
+
+on:
+  release:
+    types: [created, published]
+  pull_request:
+    types: [closed]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - run: echo ::set-output name=url::https://webhook-internal-integration.taxfix.de/software-delivery-metrics/proxy_path/$GITHUB_REPOSITORY
+      id: url-builder
+    - name: HTTP Request Action
+      uses: taxfix/webrequest-action@master
+      with:
+        method: POST
+        url: ${{ steps.url-builder.outputs.url }}
+        headers: '{"Authorization": "${{ secrets.SOFTWARE_DELIVERY_METRICS_API_KEY }}"}'

@@ -44,15 +44,14 @@ defmodule GraknElixir.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:db_connection, "~> 1.1.0"},
+      {:db_connection, "~> 2.2.0"},
       {:multix, github: "taxfix/multix"},
       {:ex2ms, "~> 1.6"},
-      {:poolboy, "~> 1.5.1"},
       {:grpc, github: "elixir-grpc/grpc", ref: "6edfd9cb9ce8f19dabd8a3ae68ecd48149d36c2a"},
       {:protobuf, "~> 0.5.3"},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
-      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0.0", only: [:dev], runtime: false},
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
       {:benchee, "~> 0.13", only: :dev}
     ]

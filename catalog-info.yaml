@@ -1,0 +1,13 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: grakn_elixir
+  description: ""
+  annotations: []
+spec:
+  type: library
+  lifecycle: production
+  domain: tax-platform
+  system: tax-engine
+  owner: tax-core
+relations: []

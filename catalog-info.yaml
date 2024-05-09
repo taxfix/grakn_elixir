@@ -5,7 +5,7 @@ metadata:
   description: ""
 spec:
   type: library
-  lifecycle: production
+  lifecycle: deprecated
   domain: tax-platform
   system: tax-engine
   owner: tax-core

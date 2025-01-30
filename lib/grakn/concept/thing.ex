@@ -9,11 +9,22 @@ defmodule Grakn.Concept.Thing do
   @doc """
   Get all attributes of the specified types associated with this instance
   """
-  @spec get_attributes(Concept.t(), [String.t()], DBConnection.t()) ::
+  @spec get_attributes(Concept.t(), [String.t()], DBConnection.t(), keyword()) ::
           {:ok, any()} | {:error, any()}
   def get_attributes(%{id: concept_id} = concept, attribute_types, conn, opts \\ []) do
     with :ok <- assert_is_thing(concept) do
       DBConnection.execute(conn, Action.attributes_by_type(), [concept_id, attribute_types], opts)
+    end
+  end
+
+  @doc """
+  Check if a given instance is inferred (i.e. implicit)
+  """
+  @spec is_inferred?(Concept.t(), DBConnection.t(), keyword()) ::
+          {:ok, any()} | {:error, any()}
+  def is_inferred?(%{id: concept_id} = concept, conn, opts \\ []) do
+    with :ok <- assert_is_thing(concept) do
+      DBConnection.execute(conn, Action.is_inferred?(), [concept_id], opts)
     end
   end
 

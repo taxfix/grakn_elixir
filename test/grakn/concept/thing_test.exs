@@ -59,4 +59,43 @@ defmodule Grakn.Concept.ThingTest do
       assert "alex" === name
     end
   end
+
+  describe "is_inferred?/3" do
+    test "we can detect inferred atttributes", context do
+      assert {:ok, _} =
+               Grakn.transaction(
+                 context[:conn],
+                 fn conn ->
+                   Grakn.query!(
+                     conn,
+                     Query.graql(
+                       "insert $p isa person, has identifier \"1234\", has name \"alex\";"
+                     )
+                   )
+                 end,
+                 keyspace: @keyspace,
+                 type: Grakn.Transaction.Type.write()
+               )
+
+      assert {:ok, true} ===
+               Grakn.transaction(
+                 context[:conn],
+                 fn conn ->
+                   [%{"is_named" => is_named}] =
+                     Grakn.query!(
+                       conn,
+                       Query.graql(
+                         "match $p isa person, has identifier \"1234\"; $p has is_named $is_named; get;"
+                       ),
+                       include_inferences: true
+                     )
+
+                   {:ok, value} = Concept.Thing.is_inferred?(is_named, conn)
+                   value
+                 end,
+                 keyspace: @keyspace,
+                 type: Grakn.Transaction.Type.write()
+               )
+    end
+  end
 end

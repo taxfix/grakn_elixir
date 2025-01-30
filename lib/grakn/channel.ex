@@ -91,14 +91,14 @@ defmodule Grakn.Channel do
     end
   end
 
-  @spec command(t(), Grakn.Command.command(), keyword(), keyword()) ::
-          {:ok, any()} | {:error, any()}
-  def command(channel, :get_keyspaces, _, opts) do
+  @spec command(t(), %Grakn.Command{}, keyword(), keyword()) ::
+          {:ok, %Grakn.Command{}, any()} | {:error, any()}
+  def command(channel, %Grakn.Command{command: :get_keyspaces} = cmd, _, opts) do
     request = Keyspace.Keyspace.Retrieve.Req.new()
 
     case Keyspace.KeyspaceService.Stub.retrieve(channel, request, opts) do
       {:ok, %Keyspace.Keyspace.Retrieve.Res{names: names}} ->
-        {:ok, names}
+        {:ok, cmd, names}
 
       {:error, reason} ->
         {:error, reason}
@@ -108,25 +108,25 @@ defmodule Grakn.Channel do
     end
   end
 
-  def command(channel, :create_keyspace, [name: name], opts) do
+  def command(channel, %Grakn.Command{command: :create_keyspace} = cmd, [name: name], opts) do
     request = Keyspace.Keyspace.Create.Req.new(name: name)
 
     case Keyspace.KeyspaceService.Stub.create(channel, request, opts) do
-      {:ok, %Keyspace.Keyspace.Create.Res{}} -> {:ok, nil}
+      {:ok, %Keyspace.Keyspace.Create.Res{}} -> {:ok, cmd, nil}
       error -> error
     end
   end
 
-  def command(channel, :delete_keyspace, [name: name], opts) do
+  def command(channel, %Grakn.Command{command: :delete_keyspace} = cmd, [name: name], opts) do
     request = Keyspace.Keyspace.Delete.Req.new(name: name)
 
     case Keyspace.KeyspaceService.Stub.delete(channel, request, opts) do
-      {:ok, %Keyspace.Keyspace.Delete.Res{}} -> {:ok, nil}
+      {:ok, %Keyspace.Keyspace.Delete.Res{}} -> {:ok, cmd, nil}
       error -> error
     end
   end
 
-  def command(channel, :close_session, [session_id: session_id], opts) do
+  def command(channel, %Grakn.Command{command: :close_session}, [session_id: session_id], opts) do
     close_session(channel, session_id, opts)
   end
 

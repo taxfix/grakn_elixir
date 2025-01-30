@@ -47,7 +47,10 @@ defmodule Grakn do
   """
   @spec query(conn(), Grakn.Query.t(), Keyword.t()) :: any()
   def query(conn, query, opts \\ []) do
-    DBConnection.execute(get_conn(conn), query, [], with_transaction_config(opts))
+    case DBConnection.execute(get_conn(conn), query, [], with_transaction_config(opts)) do
+      {:ok, _query, result} -> {:ok, result}
+      otherwise -> otherwise
+    end
   end
 
   @doc """
@@ -56,12 +59,21 @@ defmodule Grakn do
   """
   @spec query!(conn(), Grakn.Query.t(), Keyword.t()) :: any()
   def query!(conn, %Grakn.Query{} = query, opts \\ []) do
-    DBConnection.execute!(get_conn(conn), query, [], with_transaction_config(opts))
+    case DBConnection.execute!(get_conn(conn), query, [], with_transaction_config(opts)) do
+      {:ok, _query, result} -> {:ok, result}
+      otherwise -> otherwise
+    end
   end
 
   @spec command(conn(), Grakn.Command.t(), Keyword.t()) :: any()
   def command(conn, %Grakn.Command{} = command, opts \\ []) do
-    DBConnection.execute(get_conn(conn), command, [], with_transaction_config(opts))
+    case DBConnection.execute(get_conn(conn), command, [], with_transaction_config(opts)) do
+      {:ok, _command, result} ->
+        {:ok, result}
+
+      otherwise ->
+        otherwise
+    end
   end
 
   @doc """
@@ -170,14 +182,14 @@ defmodule Grakn do
   defp with_start_config(opts) do
     opts
     |> Keyword.put_new(:pool_size, get_config(:pool_size, 4))
-    |> Keyword.put_new(:pool, DBConnection.Poolboy)
+    |> Keyword.put_new(:pool, DBConnection.ConnectionPool)
   end
 
   defp with_transaction_config(opts) do
     opts_with_defaults =
       opts
       |> Keyword.put_new(:pool_size, get_config(:pool_size, 4))
-      |> Keyword.put_new(:pool, DBConnection.Poolboy)
+      |> Keyword.put_new(:pool, DBConnection.ConnectionPool)
       |> Keyword.put_new(:pool_timeout, get_config(:pool_timeout, 30_000))
       |> Keyword.put_new(:timeout, get_config(:timeout, @default_timeout))
       |> Keyword.put_new(:queue, get_config(:queue, true))

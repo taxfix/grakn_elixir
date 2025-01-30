@@ -77,11 +77,11 @@ defmodule Grakn.Protocol do
     {:error, Error.exception("Cannot commit if transaction is not open"), state}
   end
 
-  def handle_execute(%{graql: graql}, _params, opts, %{transaction: tx} = state)
+  def handle_execute(%{graql: graql} = query, _params, opts, %{transaction: tx} = state)
       when transaction_open?(tx) do
     case Transaction.query(tx, graql, opts) do
       {:ok, result} ->
-        {:ok, result, state}
+        {:ok, query, result, state}
 
       {:error, reason} ->
         message =
@@ -96,20 +96,20 @@ defmodule Grakn.Protocol do
     {:error, Error.exception("Cannot execute a query before starting a tranaction"), state}
   end
 
-  def handle_execute(%Grakn.Command{command: command, params: params}, _, opts, state) do
+  def handle_execute(%Grakn.Command{params: params} = cmd, _, opts, state) do
     state.channel
-    |> Channel.command(command, params, timeout: opts[:timeout])
-    |> handle_result(state)
+    |> Channel.command(cmd, params, timeout: opts[:timeout])
+    |> handle_result(cmd, state)
   end
 
   # Handle internal concept actions
-  def handle_execute(%Grakn.Concept.Action{name: action_name}, params, _, state)
+  def handle_execute(%Grakn.Concept.Action{name: action_name} = query, params, _, state)
       when is_atom(action_name) and is_list(params) do
     %{transaction: tx} = state
 
     Transaction
     |> apply(action_name, [tx | params])
-    |> handle_result(state)
+    |> handle_result(query, state)
   end
 
   def handle_rollback(_opts, %{transaction: tx} = state) do
@@ -120,8 +120,33 @@ defmodule Grakn.Protocol do
     {:ok, nil, %{state | transaction: nil}}
   end
 
-  defp handle_result({:ok, result}, state), do: {:ok, result, state}
-  defp handle_result({:error, error}, state), do: {error_status(error), error, state}
+  @doc """
+  DBConnection callback
+  """
+  def handle_status(_, %{transaction_status: status} = state) do
+    {status, state}
+  end
+
+  @impl DBConnection
+  def handle_prepare(query, opts, state), do: {:ok, query, state}
+
+  @impl DBConnection
+  def handle_fetch(query, cursor, opts, state), do: {:cont, "", state}
+
+  @impl DBConnection
+  def handle_declare(query, params, opt, state), do: {:ok, query, "", state}
+
+  @impl DBConnection
+  def handle_deallocate(query, cursor, opts, state), do: {:ok, "", state}
+
+  @impl DBConnection
+  def handle_close(query, opts, state), do: {:ok, "", state}
+
+  defp handle_result({:ok, result}, query, state), do: {:ok, query, result, state}
+  defp handle_result({:ok, _, result}, query, state), do: {:ok, query, result, state}
+  defp handle_result({:error, error}, _query, state), do: {error_status(error), error, state}
+
+  def ping(state), do: {:ok, state}
 
   defp error_status(%GRPC.RPCError{message: message}) when is_binary(message) do
     if message =~ ~r/noproc|shutdown/, do: :disconnect, else: :error

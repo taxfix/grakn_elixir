@@ -12,6 +12,7 @@ defmodule Grakn.Concept.Action do
           | :get_schema_concept
           | :get_attribute_types
           | :concept_label
+          | :is_inferred?
   @type t :: %__MODULE__{name: name()}
 
   defstruct [:name]
@@ -24,6 +25,7 @@ defmodule Grakn.Concept.Action do
   def get_schema_concept, do: new(:get_schema_concept)
   def get_attribute_types, do: new(:get_attribute_types)
   def concept_label, do: new(:concept_label)
+  def is_inferred?, do: new(:is_inferred?)
 end
 
 defimpl DBConnection.Query, for: Grakn.Concept.Action do
